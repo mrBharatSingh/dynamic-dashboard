@@ -1,0 +1,38 @@
+<div class="headerContainer" s>
+  <h1 mat-dialog-title>Sync Dashboard</h1>
+  <button
+    mat-raised-button
+    color="primary"
+    matTooltip="Download dashboard"
+    (click)="download()"
+    class="buttonStyle"
+  >
+    <mat-icon>download</mat-icon>
+  </button>
+</div>
+<div>
+  <p>Upload JSON data file</p>
+  <input type="file" (change)="fileChange($event)" />
+</div>
+<br />
+<br />
+<br />
+<div>
+  <button
+    mat-raised-button
+    color="primary"
+    class="buttonStyle"
+    (click)="updateData()"
+  >
+    Update Dashboard
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    class="buttonStyle"
+    style="margin-left: 10px"
+    (click)="dialogRef.close()"
+  >
+    Cancel
+  </button>
+</div>

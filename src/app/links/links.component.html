@@ -1,0 +1,87 @@
+<mat-card style="width: 80vw; margin: 10px auto">
+  <mat-card-header style="display: flex; justify-content: space-between">
+    <mat-card-title>Address Book</mat-card-title>
+    <button mat-raised-button color="primary" (click)="syncLinks()">
+      <mat-icon>sync</mat-icon>
+    </button>
+  </mat-card-header>
+  <mat-card-content>
+    <mat-form-field appearance="outline" style="width: 100%">
+      <mat-label>Filter</mat-label>
+      <input
+        matInput
+        (keyup)="applyFilter($event)"
+        placeholder="Ex. Mia"
+        #input
+      />
+    </mat-form-field>
+    <div class="noResultContainer">
+      <div
+        *ngIf="
+          !this.dataSource?.filteredData ||
+          this.dataSource?.filteredData?.length == 0
+        "
+      >
+        <mat-icon class="noResultIcon"> inbox </mat-icon>
+        <h1>No Url Found</h1>
+      </div>
+    </div>
+    <div
+      class="mat-elevation-z2"
+      [style.display]="
+        this.dataSource?.filteredData &&
+        this.dataSource?.filteredData?.length > 0
+          ? 'block'
+          : 'none'
+      "
+    >
+      <table mat-table [dataSource]="dataSource" matSort>
+        <ng-container matColumnDef="toolname">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Tool Name</th>
+          <td mat-cell *matCellDef="let row">{{ row.toolName }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="description">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            Tool Description
+          </th>
+          <td mat-cell *matCellDef="let row">{{ row.description }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="link">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Open</th>
+          <td mat-cell *matCellDef="let row">
+            <button mat-icon-button (click)="goToLink(row.url)">
+              <mat-icon>link</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="add">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            Add to Dashboard
+          </th>
+          <td mat-cell *matCellDef="let row" style="text-align: center">
+            <button mat-icon-button (click)="addToDashboard(row)">
+              <mat-icon>bookmark_add</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell" colspan="4">
+            No data matching the filter "{{ input.value }}"
+          </td>
+        </tr>
+      </table>
+
+      <mat-paginator
+        #MatPaginator
+        [pageSizeOptions]="[10, 25, 100]"
+        aria-label="Select page of users"
+      ></mat-paginator>
+    </div>
+  </mat-card-content>
+</mat-card>

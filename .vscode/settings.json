@@ -1,0 +1,25 @@
+{
+    "editor.formatOnPaste": false,
+    "editor.formatOnSave": true,
+    "css.format.enable": true,
+    "html.format.enable": true,
+    "scss.format.enable": true,
+    "json.format.enable": true,
+    "typescript.validate.enable": true,
+    "javascript.validate.enable": true,
+    "[typescript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[scss]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[html]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[css]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[json]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
+}

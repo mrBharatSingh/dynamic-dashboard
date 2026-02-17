@@ -1,0 +1,31 @@
+table {
+  width: 100%;
+}
+
+.mat-mdc-form-field {
+  font-size: 14px;
+  width: 100%;
+}
+
+th:last-child,
+td:last-child,
+td:nth-child(3),
+th:nth-child(3) {
+  width: 10%;
+}
+th:first-child,
+td:first-child {
+  width: 25%;
+}
+.noResultIcon {
+  width: fit-content;
+  height: fit-content;
+  font-size: 20vh;
+}
+.noResultContainer {
+  width: fit-content;
+  margin: auto;
+  text-align: center;
+  color: gray;
+  line-height: 10px;
+}

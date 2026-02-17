@@ -1,0 +1,77 @@
+<div id="splash-screen" *ngIf="authenticatedLoading">
+  <div id="loading"></div>
+  <h1>Authenticating ...</h1>
+</div>
+<div *ngIf="!authenticatedLoading">
+  <mat-toolbar color="primary">
+    <mat-toolbar-row class="main-toolbar">
+      <svg
+        style="width: 40px; height: 40px"
+        version="1.1"
+        id="Layer_1"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        x="0px"
+        y="0px"
+        width="712px"
+        height="710px"
+        viewBox="0 0 712 710"
+        enable-background="new 0 0 712 710"
+        xml:space="preserve"
+      >
+        <image id="image0" width="712" height="710" x="0" y="0" href="" />
+      </svg>
+      <span
+        routerLink="/"
+        style="
+          cursor: pointer;
+          display: flex;
+          flex-direction: column;
+          line-height: 15px;
+          margin-left: 5px;
+        "
+        ><span>Dashboard</span></span
+      >
+      <span class="fill-remaining-space"></span>
+      <span>
+        <button
+          mat-button
+          [matMenuTriggerFor]="menu"
+          #menuTrigger="matMenuTrigger"
+          matTooltip="Notifications"
+        >
+          <span
+            matBadge="{{ notificationCount }}"
+            matBadgeColor="warn"
+            style="z-index: 1; left: 25px"
+          ></span>
+          <mat-icon [ngClass]="notificationCount > 0 ? 'bell' : ''"
+            >notifications</mat-icon
+          >
+        </button>
+      </span>
+      <span>
+        <button
+          mat-button
+          matTooltip="Upload and download dashboard"
+          (click)="openSyncDashboardDialog()"
+        >
+          <mat-icon>manage_accounts</mat-icon>
+        </button>
+      </span>
+
+      <mat-menu #menu="matMenu" xPosition="before">
+        <div class="notificationContainer">
+          <app-notifications></app-notifications>
+        </div>
+        <div *ngIf="time > 0">
+          <button mat-menu-item>close in {{ time }} sec</button>
+        </div>
+      </mat-menu>
+    </mat-toolbar-row>
+  </mat-toolbar>
+
+  <div class="routerOutlet">
+    <router-outlet></router-outlet>
+  </div>
+</div>

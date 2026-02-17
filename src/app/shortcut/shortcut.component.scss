@@ -1,0 +1,19 @@
+.shortcutContainer {
+  // color: white;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  // text-align: center;
+  cursor: pointer;
+  .logoContainer {
+    & mat-icon {
+      width: fit-content;
+      height: fit-content;
+    }
+  }
+  .linkContainer {
+    text-align: center;
+  }
+}
