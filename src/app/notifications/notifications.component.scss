@@ -1,3 +1,124 @@
-.mat-list-icon {
-  color: rgba(0, 0, 0, 0.54);
+.notifications-panel {
+  width: 100%;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.notifications-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-elevated);
+
+  h4 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i {
+      color: var(--primary);
+      font-size: 1rem;
+    }
+  }
+}
+
+.notification-list {
+  padding: 0.25rem 0;
+}
+
+.notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 0.85rem 1.25rem;
+  transition: background-color var(--transition-fast);
+  cursor: pointer;
+  position: relative;
+
+  &:hover {
+    background-color: var(--bg-hover);
+  }
+
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.85rem;
+    bottom: 0.85rem;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  &:hover::after {
+    opacity: 1;
+  }
+
+  &.priority-high::after {
+    background: var(--danger);
+  }
+  &.priority-success::after {
+    background: var(--success);
+  }
+  &.priority-warning::after {
+    background: var(--warning);
+  }
+}
+
+.notification-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    opacity: 0.2;
+  }
+
+  &.high {
+    background-color: var(--danger);
+    &::after { background-color: var(--danger); }
+  }
+  &.success {
+    background-color: var(--success);
+    &::after { background-color: var(--success); }
+  }
+  &.warning {
+    background-color: var(--warning);
+    &::after { background-color: var(--warning); }
+  }
+}
+
+.notification-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.notification-text {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.notification-date {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 400;
 }

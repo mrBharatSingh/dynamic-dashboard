@@ -13,9 +13,7 @@ export class ShortcutComponent implements OnInit {
 
   ngOnInit(): void {}
   goToLink(url: string) {
-    if (!this.isEditing) {
-      window.open(url, '_blank');
-      console.log(url);
-    }
+    // Navigation is handled by the parent dashboard component
+    // This prevents double-open when clicking a shortcut
   }
 }

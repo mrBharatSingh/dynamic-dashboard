@@ -1,9 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
-import { AddNewShortcutComponent } from '../add-new-shortcut/add-new-shortcut.component';
-import { MatDialog } from '@angular/material/dialog';
+import { DashboardDataService } from '../services/dashboard-data.service';
+import { Table } from 'primeng/table';
 
 @Component({
   selector: 'app-links',
@@ -11,10 +8,15 @@ import { MatDialog } from '@angular/material/dialog';
   styleUrls: ['./links.component.scss'],
 })
 export class LinksComponent implements OnInit {
-  displayedColumns: string[] = ['toolname', 'description', 'link', 'add'];
-  dataSource: MatTableDataSource<any>;
-  linksData: any;
-  data = [
+  linksData: any[] = [];
+  filteredData: any[] = [];
+  searchText = '';
+  showAddDialog = false;
+  dialogData: any = {};
+
+  @ViewChild('dt') dt: Table;
+
+  defaultData = [
     {
       toolName: 'IQM',
       description: 'Integration Queue Manager',
@@ -32,70 +34,64 @@ export class LinksComponent implements OnInit {
     },
   ];
 
-  @ViewChild('MatPaginator', { static: true }) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
-  constructor(public dialog: MatDialog) {}
+  constructor() {}
 
   ngOnInit(): void {
     this.refresh();
   }
+
   refresh() {
-    this.linksData = JSON.parse(localStorage.getItem('dashBoardLinks'));
-    this.dataSource = new MatTableDataSource(this.linksData);
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+    this.linksData = JSON.parse(localStorage.getItem('dashBoardLinks') || '[]');
+    this.filteredData = [...this.linksData];
   }
+
   syncLinks() {
-    localStorage.setItem('dashBoardLinks', JSON.stringify(this.data));
+    localStorage.setItem('dashBoardLinks', JSON.stringify(this.defaultData));
     this.refresh();
   }
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
 
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
+  applyFilter(event: Event | string) {
+    const filterValue = typeof event === 'string' ? event : (event.target as HTMLInputElement).value;
+    this.searchText = filterValue;
+    if (this.dt) {
+      this.dt.filterGlobal(filterValue, 'contains');
     }
   }
+
   goToLink(url: string) {
     window.open(url, '_blank');
   }
 
-  addToDashboard(data) {
-    console.log(data);
+  addToDashboard(data: any) {
+    this.dialogData = { name: data.toolName, url: data.url };
+    this.showAddDialog = true;
+  }
 
-    const dialogRef = this.dialog.open(AddNewShortcutComponent, {
-      height: '50%',
-      width: '60%',
-      data: { name: data.toolName, url: data.url },
-    });
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        let layout = JSON.parse(
-          localStorage.getItem(result.boardName + 'DashBoardGridLayout')
-        );
-        console.log(result, 'The dialog was closed');
-        let max = 0;
-        layout.forEach((el: any) => {
-          max = Math.max(max, +el.id);
-        });
-        let tempTile = {
-          id: (max + 1).toString(),
-          x: 0,
-          y: 0,
-          w: 2,
-          h: 2,
-          name: result.name,
-          url: result.url,
-          backgroundColor: result.backgroundColor,
-        };
-        layout = [...layout, tempTile];
-        console.log(layout);
-        localStorage.setItem(
-          result.boardName + 'DashBoardGridLayout',
-          JSON.stringify([...layout])
-        );
-      }
-    });
+  onShortcutDialogClose(result: any) {
+    this.showAddDialog = false;
+    if (result) {
+      let layout = JSON.parse(
+        localStorage.getItem(result.boardName + 'DashBoardGridLayout') || '[]'
+      );
+      let max = 0;
+      layout.forEach((el: any) => {
+        max = Math.max(max, +el.id);
+      });
+      let tempTile = {
+        id: (max + 1).toString(),
+        x: 0,
+        y: 0,
+        w: 2,
+        h: 2,
+        name: result.name,
+        url: result.url,
+        backgroundColor: result.backgroundColor,
+      };
+      layout = [...layout, tempTile];
+      localStorage.setItem(
+        result.boardName + 'DashBoardGridLayout',
+        JSON.stringify([...layout])
+      );
+    }
   }
 }

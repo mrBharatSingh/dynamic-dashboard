@@ -1,6 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
 import { DashboardDataService } from '../services/dashboard-data.service';
 
 @Component({
@@ -9,27 +8,29 @@ import { DashboardDataService } from '../services/dashboard-data.service';
   styleUrls: ['./add-new-dashboard-tab.component.scss'],
 })
 export class AddNewDashboardTabComponent implements OnInit {
-  constructor(
-    public dialogRef: MatDialogRef<AddNewDashboardTabComponent>,
-    private dashboardService: DashboardDataService
-  ) {}
+  @Output() submitted = new EventEmitter<void>();
+  @Output() cancelled = new EventEmitter<void>();
+
   myForm = new FormGroup({
     name: new FormControl('', Validators.required),
   });
+
+  constructor(private dashboardService: DashboardDataService) {}
+
   ngOnInit(): void {}
 
-  onNoClick() {
-    this.dialogRef.close();
+  onCancel() {
+    this.cancelled.emit();
   }
+
   submit() {
     if (this.myForm.value.name) {
       let currentValues = this.dashboardService.dashboardName.value;
-
       if (currentValues) {
         let temp: string[] = [...currentValues, this.myForm.value.name];
         this.dashboardService.dashboardName.next(temp);
         localStorage.setItem('DashBoardNameArray', JSON.stringify(temp));
-        this.dialogRef.close();
+        this.submitted.emit();
       }
     }
   }

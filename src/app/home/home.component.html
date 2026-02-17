@@ -1,27 +1,21 @@
-<div class="mainContainer">
-  <div
-    fxLayout="column"
-    fxLayoutGap="1rem"
-    fxLayoutAlign="center center"
-    style="padding: 0rem 3rem 3rem 3rem"
-    style="width: 100%"
+<div class="home-container">
+  <p-tabView
+    (onChange)="onTabChanged($event)"
+    [activeIndex]="selectedTabIndex"
+    styleClass="modern-tabs"
   >
-    <mat-tab-group
-      mat-align-tabs="center"
-      (selectedTabChange)="onTabChanged($event)"
+    <p-tabPanel
+      *ngFor="let board of boardlist; let i = index"
+      [header]="board"
+      [leftIcon]="'pi pi-th-large'"
     >
-      <mat-tab
-        *ngFor="let board of boardlist; let i = index"
-        label="{{ board }}"
-      >
-        <app-dashboard
-          *ngIf="i == selectedTabIndex"
-          [dashboardName]="board"
-        ></app-dashboard>
-      </mat-tab>
-      <mat-tab label="{{ 'Links' }}">
-        <app-links></app-links>
-      </mat-tab>
-    </mat-tab-group>
-  </div>
+      <app-dashboard
+        *ngIf="i == selectedTabIndex"
+        [dashboardName]="board"
+      ></app-dashboard>
+    </p-tabPanel>
+    <p-tabPanel header="Links" leftIcon="pi pi-link">
+      <app-links></app-links>
+    </p-tabPanel>
+  </p-tabView>
 </div>

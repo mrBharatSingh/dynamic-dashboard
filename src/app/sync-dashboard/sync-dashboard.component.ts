@@ -1,6 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { DashboardDataService } from '../services/dashboard-data.service';
-import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-sync-dashboard',
@@ -8,28 +7,33 @@ import { MatDialogRef } from '@angular/material/dialog';
   styleUrls: ['./sync-dashboard.component.scss'],
 })
 export class SyncDashboardComponent implements OnInit {
-  dashbordData;
-  constructor(
-    private dashboardService: DashboardDataService,
-    public dialogRef: MatDialogRef<SyncDashboardComponent>
-  ) {}
+  @Output() syncComplete = new EventEmitter<boolean>();
+
+  dashbordData: any;
+  fileName = '';
+
+  constructor(private dashboardService: DashboardDataService) {}
 
   ngOnInit(): void {}
+
   download() {
     this.dashboardService.downloadJSON();
   }
-  fileChange(event) {
+
+  fileChange(event: any) {
     const file: File = event.target.files[0];
-    const reader = new FileReader();
-    reader.readAsText(file);
-    reader.onload = (e: any) => {
-      this.dashbordData = JSON.parse(e.target.result);
-    };
+    if (file) {
+      this.fileName = file.name;
+      const reader = new FileReader();
+      reader.readAsText(file);
+      reader.onload = (e: any) => {
+        this.dashbordData = JSON.parse(e.target.result);
+      };
+    }
   }
 
   updateData() {
-    let dashboardNames = [];
-    console.log(this.dashbordData);
+    let dashboardNames: string[] = [];
     for (let key in this.dashbordData) {
       dashboardNames.push(key);
       localStorage.setItem(
@@ -37,8 +41,11 @@ export class SyncDashboardComponent implements OnInit {
         JSON.stringify(this.dashbordData[key])
       );
     }
-
     localStorage.setItem('DashBoardNameArray', JSON.stringify(dashboardNames));
-    this.dialogRef.close(true);
+    this.syncComplete.emit(true);
+  }
+
+  cancel() {
+    this.syncComplete.emit(false);
   }
 }

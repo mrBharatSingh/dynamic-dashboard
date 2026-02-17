@@ -1,10 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import {
-  CdkDragDrop,
-  CdkDrag,
-  CdkDropList,
-  moveItemInArray,
-} from '@angular/cdk/drag-drop';
 import { DashboardDataService } from '../services/dashboard-data.service';
 
 @Component({
@@ -14,19 +8,17 @@ import { DashboardDataService } from '../services/dashboard-data.service';
 })
 export class HomeComponent implements OnInit {
   selectedTabIndex = 0;
+  boardlist: string[];
+
   constructor(private dashboardService: DashboardDataService) {}
 
-  boardlist;
   ngOnInit(): void {
     this.dashboardService.dashboardName.subscribe((result) => {
       this.boardlist = result;
     });
   }
-  onTabChanged(event) {
+
+  onTabChanged(event: any) {
     this.selectedTabIndex = event.index;
-    console.log(event.index);
-  }
-  drop(event: CdkDragDrop<string[]>) {
-    moveItemInArray(this.boardlist, event.previousIndex, event.currentIndex);
   }
 }

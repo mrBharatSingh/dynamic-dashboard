@@ -1,77 +1,94 @@
-<div id="splash-screen" *ngIf="authenticatedLoading">
-  <div id="loading"></div>
-  <h1>Authenticating ...</h1>
+<!-- Loading Screen -->
+<div class="splash-screen" *ngIf="authenticatedLoading">
+  <div class="loading-container">
+    <div class="loading-spinner">
+      <div class="spinner-ring"></div>
+      <i class="pi pi-th-large spinner-icon"></i>
+    </div>
+    <h2 class="loading-text">Loading Dashboard</h2>
+    <p class="loading-subtext">Preparing your workspace...</p>
+  </div>
 </div>
-<div *ngIf="!authenticatedLoading">
-  <mat-toolbar color="primary">
-    <mat-toolbar-row class="main-toolbar">
-      <svg
-        style="width: 40px; height: 40px"
-        version="1.1"
-        id="Layer_1"
-        xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
-        x="0px"
-        y="0px"
-        width="712px"
-        height="710px"
-        viewBox="0 0 712 710"
-        enable-background="new 0 0 712 710"
-        xml:space="preserve"
-      >
-        <image id="image0" width="712" height="710" x="0" y="0" href="" />
-      </svg>
-      <span
-        routerLink="/"
-        style="
-          cursor: pointer;
-          display: flex;
-          flex-direction: column;
-          line-height: 15px;
-          margin-left: 5px;
-        "
-        ><span>Dashboard</span></span
-      >
-      <span class="fill-remaining-space"></span>
-      <span>
+
+<!-- Main App -->
+<div *ngIf="!authenticatedLoading" class="app-container">
+  <!-- Modern Glassmorphism Navbar -->
+  <header class="top-navbar">
+    <div class="navbar-content">
+      <!-- Logo & Title -->
+      <div class="navbar-brand" routerLink="/">
+        <div class="logo-icon">
+          <i class="pi pi-th-large"></i>
+        </div>
+        <div class="brand-info">
+          <span class="brand-text">Dashboard</span>
+          <span class="brand-badge">Pro</span>
+        </div>
+      </div>
+
+      <!-- Right Actions -->
+      <div class="navbar-actions">
+        <!-- Dark Mode Toggle -->
         <button
-          mat-button
-          [matMenuTriggerFor]="menu"
-          #menuTrigger="matMenuTrigger"
-          matTooltip="Notifications"
+          class="navbar-btn theme-toggle"
+          (click)="toggleDarkMode()"
+          pTooltip="{{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}"
+          tooltipPosition="bottom"
         >
-          <span
-            matBadge="{{ notificationCount }}"
-            matBadgeColor="warn"
-            style="z-index: 1; left: 25px"
-          ></span>
-          <mat-icon [ngClass]="notificationCount > 0 ? 'bell' : ''"
-            >notifications</mat-icon
-          >
+          <i class="pi" [ngClass]="isDarkMode ? 'pi-sun' : 'pi-moon'"></i>
         </button>
-      </span>
-      <span>
+
+        <!-- Notifications -->
         <button
-          mat-button
-          matTooltip="Upload and download dashboard"
+          class="navbar-btn"
+          pTooltip="Notifications"
+          tooltipPosition="bottom"
+          (click)="op.toggle($event)"
+        >
+          <i class="pi pi-bell" [ngClass]="{ 'bell-animate': notificationCount > 0 }"></i>
+          <span
+            *ngIf="notificationCount > 0"
+            class="notification-badge"
+          >{{ notificationCount }}</span>
+        </button>
+
+        <!-- Sync / Settings -->
+        <button
+          class="navbar-btn"
+          pTooltip="Settings"
+          tooltipPosition="bottom"
           (click)="openSyncDashboardDialog()"
         >
-          <mat-icon>manage_accounts</mat-icon>
+          <i class="pi pi-cog"></i>
         </button>
-      </span>
+      </div>
+    </div>
+  </header>
 
-      <mat-menu #menu="matMenu" xPosition="before">
-        <div class="notificationContainer">
-          <app-notifications></app-notifications>
-        </div>
-        <div *ngIf="time > 0">
-          <button mat-menu-item>close in {{ time }} sec</button>
-        </div>
-      </mat-menu>
-    </mat-toolbar-row>
-  </mat-toolbar>
+  <!-- Notification Overlay Panel -->
+  <p-overlayPanel #op [showCloseIcon]="true" styleClass="notification-panel">
+    <ng-template pTemplate>
+      <app-notifications></app-notifications>
+    </ng-template>
+  </p-overlayPanel>
 
-  <div class="routerOutlet">
+  <!-- Sync Dashboard Dialog -->
+  <p-dialog
+    header="Sync Dashboard"
+    [(visible)]="showSyncDialog"
+    [modal]="true"
+    [style]="{ width: '500px' }"
+    [draggable]="false"
+    [resizable]="false"
+  >
+    <app-sync-dashboard
+      *ngIf="showSyncDialog"
+      (syncComplete)="onSyncDialogClose($event)"
+    ></app-sync-dashboard>
+  </p-dialog>
+
+  <!-- Router Content -->
+  <main class="main-content slide-up">
     <router-outlet></router-outlet>
-  </div>
+  </main>
 </div>

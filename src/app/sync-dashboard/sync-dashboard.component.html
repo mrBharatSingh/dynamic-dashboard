@@ -1,38 +1,68 @@
-<div class="headerContainer" s>
-  <h1 mat-dialog-title>Sync Dashboard</h1>
-  <button
-    mat-raised-button
-    color="primary"
-    matTooltip="Download dashboard"
-    (click)="download()"
-    class="buttonStyle"
-  >
-    <mat-icon>download</mat-icon>
-  </button>
-</div>
-<div>
-  <p>Upload JSON data file</p>
-  <input type="file" (change)="fileChange($event)" />
-</div>
-<br />
-<br />
-<br />
-<div>
-  <button
-    mat-raised-button
-    color="primary"
-    class="buttonStyle"
-    (click)="updateData()"
-  >
-    Update Dashboard
-  </button>
-  <button
-    mat-raised-button
-    color="primary"
-    class="buttonStyle"
-    style="margin-left: 10px"
-    (click)="dialogRef.close()"
-  >
-    Cancel
-  </button>
+<div class="sync-container">
+  <!-- Download Section -->
+  <div class="sync-section">
+    <div class="section-header">
+      <i class="pi pi-download section-icon"></i>
+      <div>
+        <h4>Download Dashboard</h4>
+        <p>Export your current dashboard configuration as JSON</p>
+      </div>
+    </div>
+    <button
+      pButton
+      pRipple
+      type="button"
+      icon="pi pi-download"
+      label="Download"
+      class="p-button-outlined"
+      (click)="download()"
+    ></button>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- Upload Section -->
+  <div class="sync-section">
+    <div class="section-header">
+      <i class="pi pi-upload section-icon"></i>
+      <div>
+        <h4>Upload Dashboard</h4>
+        <p>Import a previously exported JSON data file</p>
+      </div>
+    </div>
+    <div class="upload-area">
+      <label for="fileInput" class="file-label">
+        <i class="pi pi-file"></i>
+        <span>{{ fileName || 'Choose a file...' }}</span>
+      </label>
+      <input
+        id="fileInput"
+        type="file"
+        accept=".json"
+        (change)="fileChange($event)"
+        class="file-input"
+      />
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="dialog-actions">
+    <button
+      pButton
+      pRipple
+      type="button"
+      label="Cancel"
+      class="p-button-text"
+      (click)="cancel()"
+    ></button>
+    <button
+      pButton
+      pRipple
+      type="button"
+      label="Update Dashboard"
+      icon="pi pi-refresh"
+      [disabled]="!dashbordData"
+      (click)="updateData()"
+    ></button>
+  </div>
 </div>

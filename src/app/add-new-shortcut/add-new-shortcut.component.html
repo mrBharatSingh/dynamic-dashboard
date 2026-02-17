@@ -1,48 +1,68 @@
-<h1 mat-dialog-title>Add a new Shortcut</h1>
-<div mat-dialog-content>
-  <form [formGroup]="myForm">
-    <mat-form-field appearance="outline" class="fullWidth">
-      <mat-label>Name</mat-label>
-      <input matInput formControlName="name" />
-    </mat-form-field>
-    <mat-form-field appearance="outline" class="fullWidth">
-      <mat-label>URL</mat-label>
-      <input matInput formControlName="url" />
-    </mat-form-field>
-    <mat-form-field
-      appearance="outline"
-      class="halfWidth"
-      style="margin-right: 10px"
-    >
-      <mat-label>Select Background Color</mat-label>
-      <input
-        matInput
-        [ngxMatColorPicker]="picker"
-        [disabled]="disabled"
-        formControlName="backgroundColor"
-      />
-      <ngx-mat-color-toggle matSuffix [for]="picker"></ngx-mat-color-toggle>
-      <ngx-mat-color-picker
-        #picker
-        [touchUi]="touchUi"
-        [color]="color"
-      ></ngx-mat-color-picker>
-    </mat-form-field>
-    <mat-form-field appearance="outline" class="halfWidth">
-      <mat-label>Select Dashboard Name</mat-label>
-      <mat-select formControlName="boardName">
-        <mat-option *ngFor="let board of boardList" [value]="board">
-          {{ board }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-  </form>
-</div>
-<div mat-dialog-actions>
-  <button mat-raised-button color="primary" (click)="onNoClick()">
-    Cancel
-  </button>
-  <button mat-raised-button color="primary" (click)="submit()" cdkFocusInitial>
-    Add
-  </button>
+<form [formGroup]="myForm" class="shortcut-form">
+  <div class="form-field">
+    <label for="name">Name</label>
+    <input
+      id="name"
+      type="text"
+      pInputText
+      formControlName="name"
+      placeholder="Enter shortcut name"
+      class="w-full"
+    />
+  </div>
+
+  <div class="form-field">
+    <label for="url">URL</label>
+    <input
+      id="url"
+      type="text"
+      pInputText
+      formControlName="url"
+      placeholder="https://example.com"
+      class="w-full"
+    />
+  </div>
+
+  <div class="form-row">
+    <div class="form-field flex-1">
+      <label>Background Color</label>
+      <div class="color-picker-wrapper">
+        <p-colorPicker
+          [(ngModel)]="selectedColor"
+          [ngModelOptions]="{ standalone: true }"
+          (onChange)="onColorChange($event.value)"
+        ></p-colorPicker>
+        <span class="color-hex">#{{ selectedColor }}</span>
+      </div>
+    </div>
+
+    <div class="form-field flex-1">
+      <label for="boardName">Dashboard</label>
+      <p-dropdown
+        [options]="boardList"
+        formControlName="boardName"
+        placeholder="Select Dashboard"
+        [style]="{ width: '100%' }"
+      ></p-dropdown>
+    </div>
+  </div>
+</form>
+
+<div class="dialog-actions">
+  <button
+    pButton
+    pRipple
+    type="button"
+    label="Cancel"
+    class="p-button-text"
+    (click)="onCancel()"
+  ></button>
+  <button
+    pButton
+    pRipple
+    type="button"
+    label="Save"
+    icon="pi pi-check"
+    (click)="submit()"
+  ></button>
 </div>

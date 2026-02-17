@@ -1,7 +1,4 @@
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { MatMenuTrigger } from '@angular/material/menu';
-import { SyncDashboardComponent } from './sync-dashboard/sync-dashboard.component';
 
 @Component({
   selector: 'app-root',
@@ -11,38 +8,46 @@ import { SyncDashboardComponent } from './sync-dashboard/sync-dashboard.componen
 export class AppComponent implements OnInit {
   title = 'dashboard';
   authenticatedLoading = false;
-  @ViewChild('menuTrigger')
-  menuTrigger: MatMenuTrigger;
-  time: number = 3;
   notificationCount: number = 3;
-  constructor(private cd: ChangeDetectorRef, public dialog: MatDialog) {}
-  ngOnInit(): void {}
-  ngAfterViewInit() {
-    // this.menuTrigger.openMenu();
-    // this.cd.detectChanges();
-    // let interval;
-    // interval = setInterval(() => {
-    //   this.time--;
-    //   // this.cd.detectChanges();
-    //   console.log(this.time);
-    //   if (this.time == 0) {
-    //     this.menuTrigger.closeMenu();
-    //     clearInterval(interval);
-    //   }
-    // }, 1000);
-  }
-  openSyncDashboardDialog() {
-    const dialogRef = this.dialog.open(SyncDashboardComponent, {
-      height: 'auto',
-      width: '40%',
-    });
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        location.reload();
+  showSyncDialog = false;
+  isDarkMode = false;
+
+  constructor(private cd: ChangeDetectorRef) {}
+
+  ngOnInit(): void {
+    // Restore saved theme preference
+    const savedTheme = localStorage.getItem('dashboard-theme');
+    if (savedTheme === 'dark') {
+      this.isDarkMode = true;
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else if (!savedTheme) {
+      // Check system preference
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (prefersDark) {
+        this.isDarkMode = true;
+        document.documentElement.setAttribute('data-theme', 'dark');
       }
-    });
+    }
+  }
+
+  toggleDarkMode() {
+    this.isDarkMode = !this.isDarkMode;
+    if (this.isDarkMode) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('dashboard-theme', 'dark');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('dashboard-theme', 'light');
+    }
+  }
+
+  openSyncDashboardDialog() {
+    this.showSyncDialog = true;
+  }
+  onSyncDialogClose(result: boolean) {
+    this.showSyncDialog = false;
+    if (result) {
+      location.reload();
+    }
   }
 }
-//one note
-//todo
-//

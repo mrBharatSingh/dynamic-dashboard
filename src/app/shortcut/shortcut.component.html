@@ -1,10 +1,8 @@
-<div class="shortcutContainer" (click)="goToLink(url)">
-  <div class="logoContainer">
-    <!-- <img src="" alt=""> -->
-    <mat-icon style="font-size: 2rem">language</mat-icon>
+<div class="shortcut-card" (click)="goToLink(url)" [class.editing]="isEditing">
+  <div class="shortcut-icon">
+    <i class="pi pi-globe"></i>
   </div>
-  <div class="linkContainer">
-    <p style="font-size: 1.25rem">{{ name || "URL" }}</p>
-    <!-- <a href="{{url}}" target="_blank">{{name||"bharat "}}</a> -->
+  <div class="shortcut-label">
+    <span>{{ name || 'URL' }}</span>
   </div>
 </div>

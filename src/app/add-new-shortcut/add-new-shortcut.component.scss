@@ -1,6 +1,65 @@
-.fullWidth {
-  width: 100%;
+.shortcut-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
-.halfWidth {
-  width: calc(50% - 5px);
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .p-inputtext {
+    background: var(--bg-input);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+    padding: 0.7rem 0.9rem;
+  }
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+
+  .flex-1 {
+    flex: 1;
+  }
+}
+
+.color-picker-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem;
+  background: var(--bg-hover);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+
+  .color-hex {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    letter-spacing: 0.02em;
+  }
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+
+  .p-button-text {
+    color: var(--text-secondary) !important;
+  }
 }

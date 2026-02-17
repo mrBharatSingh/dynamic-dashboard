@@ -1,47 +1,54 @@
-<mat-toolbar class="toolbar secondary-toolbar">
-  <div class="toolbarDiv">
-    <div>
-      <!-- <button mat-button (click)="opneAddNewDialog()">
-        <mat-icon>add</mat-icon>
-      </button> -->
-      <button
-        *ngIf="editMode"
-        mat-button
-        (click)="addNewDashboardTab()"
-        matTooltip="Add a new Dashboard"
-      >
-        <mat-icon
-          ><span class="material-symbols-outlined"> new_window </span></mat-icon
-        >
-      </button>
-      <button
-        *ngIf="editMode"
-        mat-button
-        (click)="addGridTile()"
-        matTooltip="Add a new Shortcut"
-      >
-        <mat-icon>add</mat-icon>
-      </button>
-      <button
-        *ngIf="!editMode"
-        mat-button
-        (click)="editMode = true"
-        matTooltip="Edit Dashboard"
-      >
-        <mat-icon>edit</mat-icon>
-      </button>
-
-      <button
-        *ngIf="editMode"
-        mat-button
-        (click)="saveGridTile()"
-        matTooltip="Save Dashboard"
-      >
-        <mat-icon>save</mat-icon>
-      </button>
-    </div>
+<!-- Dashboard Toolbar -->
+<div class="dashboard-toolbar">
+  <div class="toolbar-actions">
+    <button
+      *ngIf="editMode"
+      pButton
+      pRipple
+      type="button"
+      icon="pi pi-plus-circle"
+      label="New Dashboard"
+      class="p-button-outlined p-button-sm"
+      pTooltip="Add a new Dashboard"
+      (click)="addNewDashboardTab()"
+    ></button>
+    <button
+      *ngIf="editMode"
+      pButton
+      pRipple
+      type="button"
+      icon="pi pi-plus"
+      label="Add Shortcut"
+      class="p-button-outlined p-button-sm"
+      pTooltip="Add a new Shortcut"
+      (click)="addGridTile()"
+    ></button>
+    <button
+      *ngIf="!editMode"
+      pButton
+      pRipple
+      type="button"
+      icon="pi pi-pencil"
+      label="Edit"
+      class="p-button-text p-button-sm"
+      pTooltip="Edit Dashboard"
+      (click)="editMode = true"
+    ></button>
+    <button
+      *ngIf="editMode"
+      pButton
+      pRipple
+      type="button"
+      icon="pi pi-save"
+      label="Save"
+      class="p-button-success p-button-sm"
+      pTooltip="Save Dashboard"
+      (click)="saveGridTile()"
+    ></button>
   </div>
-</mat-toolbar>
+</div>
+
+<!-- Grid Container -->
 <div class="grid-container">
   <ktd-grid
     [cols]="cols"
@@ -50,40 +57,99 @@
     [layout]="layout"
     (layoutUpdated)="onLayoutUpdated($event)"
     [compactType]="'vertical'"
-    [gap]="5"
+    [gap]="8"
   >
     <ktd-grid-item
-      class="gridItem"
+      class="grid-item"
       *ngFor="let item of layout; trackBy: trackById"
       [id]="item.id"
-      [style.background-color]="item.backgroundColor || 'gray'"
-      [style.border]="editMode ? 'solid 1px gray' : ''"
-      style="border-radius: 5px"
+      [style.border]="editMode ? '2px dashed var(--text-muted)' : 'none'"
       [draggable]="editMode"
       [resizable]="editMode"
     >
-      <!-- Your grid item content goes here -->
-      <div class="grid-item-remove-handle">
-        <button *ngIf="editMode" mat-icon-button (click)="opneEdigDialog(item)">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button *ngIf="editMode" mat-icon-button (click)="removeItem(item.id)">
-          <mat-icon>close</mat-icon>
-        </button>
+      <!-- Edit controls -->
+      <div class="grid-item-controls" *ngIf="editMode">
+        <button
+          pButton
+          pRipple
+          type="button"
+          icon="pi pi-pencil"
+          class="p-button-rounded p-button-text p-button-sm control-btn"
+          (click)="opneEdigDialog(item)"
+        ></button>
+        <button
+          pButton
+          pRipple
+          type="button"
+          icon="pi pi-times"
+          class="p-button-rounded p-button-text p-button-danger p-button-sm control-btn"
+          (click)="removeItem(item.id)"
+        ></button>
       </div>
-      <!-- Optional Custom placeholder template -->
-      <ng-container>
-        <div class="contentContainer">
-          <app-shortcut
-            [name]="item.name"
-            [url]="item.url"
-            [isEditing]="editMode"
-          ></app-shortcut>
-        </div>
-      </ng-container>
+
+      <!-- Shortcut content (view mode - clickable) -->
+      <div
+        class="grid-item-content"
+        *ngIf="!editMode"
+        [style.background-color]="item.backgroundColor || '#6366f1'"
+        (pointerdown)="$event.stopPropagation()"
+        (click)="navigateToUrl(item.url)"
+      >
+        <app-shortcut
+          [name]="item.name"
+          [url]="item.url"
+          [isEditing]="false"
+        ></app-shortcut>
+      </div>
+      <!-- Shortcut content (edit mode - draggable) -->
+      <div
+        class="grid-item-content"
+        *ngIf="editMode"
+        [style.background-color]="item.backgroundColor || '#6366f1'"
+      >
+        <app-shortcut
+          [name]="item.name"
+          [url]="item.url"
+          [isEditing]="true"
+        ></app-shortcut>
+      </div>
+
       <ng-template ktdGridItemPlaceholder>
-        <!-- Custom placeholder content goes here -->
+        <div class="grid-placeholder"></div>
       </ng-template>
     </ktd-grid-item>
   </ktd-grid>
 </div>
+
+<!-- Add Shortcut Dialog -->
+<p-dialog
+  header="Add New Shortcut"
+  [(visible)]="showAddShortcutDialog"
+  [modal]="true"
+  [style]="{ width: '550px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <app-add-new-shortcut
+    *ngIf="showAddShortcutDialog"
+    [data]="dialogData"
+    (submitted)="onShortcutDialogClose($event)"
+    (cancelled)="showAddShortcutDialog = false"
+  ></app-add-new-shortcut>
+</p-dialog>
+
+<!-- Add Dashboard Tab Dialog -->
+<p-dialog
+  header="Add New Dashboard"
+  [(visible)]="showAddDashboardDialog"
+  [modal]="true"
+  [style]="{ width: '450px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <app-add-new-dashboard-tab
+    *ngIf="showAddDashboardDialog"
+    (submitted)="showAddDashboardDialog = false"
+    (cancelled)="showAddDashboardDialog = false"
+  ></app-add-new-dashboard-tab>
+</p-dialog>

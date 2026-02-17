@@ -1,17 +1,33 @@
-<h1 mat-dialog-title>Add a new Shortcut</h1>
-<div mat-dialog-content>
-  <form [formGroup]="myForm">
-    <mat-form-field appearance="outline" style="width: 100%">
-      <mat-label>Dashboard Name</mat-label>
-      <input matInput formControlName="name" />
-    </mat-form-field>
-  </form>
-</div>
-<div mat-dialog-actions>
-  <button mat-raised-button color="primary" (click)="onNoClick()">
-    Cancel
-  </button>
-  <button mat-raised-button color="primary" (click)="submit()" cdkFocusInitial>
-    Add
-  </button>
+<form [formGroup]="myForm" class="dashboard-tab-form">
+  <div class="form-field">
+    <label for="dashboardName">Dashboard Name</label>
+    <input
+      id="dashboardName"
+      type="text"
+      pInputText
+      formControlName="name"
+      placeholder="Enter dashboard name"
+      class="w-full"
+    />
+  </div>
+</form>
+
+<div class="dialog-actions">
+  <button
+    pButton
+    pRipple
+    type="button"
+    label="Cancel"
+    class="p-button-text"
+    (click)="onCancel()"
+  ></button>
+  <button
+    pButton
+    pRipple
+    type="button"
+    label="Create"
+    icon="pi pi-check"
+    [disabled]="myForm.invalid"
+    (click)="submit()"
+  ></button>
 </div>

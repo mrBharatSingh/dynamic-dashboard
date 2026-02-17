@@ -1,18 +1,28 @@
-<mat-list>
-  <div mat-subheader>Notifications</div>
-  <mat-list-item style="background-color: rgb(235, 140, 140)">
-    <mat-icon mat-list-icon>note</mat-icon>
-    <div mat-line>Please complete Time Sheet</div>
-    <div mat-line>{{ date | date }}</div>
-  </mat-list-item>
-  <mat-list-item style="background-color: rgb(140, 235, 140)">
-    <mat-icon mat-list-icon>note</mat-icon>
-    <div mat-line>Complete your training</div>
-    <div mat-line>{{ date | date }}</div>
-  </mat-list-item>
-  <mat-list-item style="background-color: rgb(241, 246, 83)">
-    <mat-icon mat-list-icon>note</mat-icon>
-    <div mat-line>test notifications</div>
-    <div mat-line>{{ date | date }}</div>
-  </mat-list-item>
-</mat-list>
+<div class="notifications-panel">
+  <div class="notifications-header">
+    <h4><i class="pi pi-bell"></i> Notifications</h4>
+  </div>
+  <div class="notification-list">
+    <div class="notification-item priority-high">
+      <div class="notification-dot high"></div>
+      <div class="notification-body">
+        <span class="notification-text">Please complete Time Sheet</span>
+        <span class="notification-date">{{ date | date: 'mediumDate' }}</span>
+      </div>
+    </div>
+    <div class="notification-item priority-success">
+      <div class="notification-dot success"></div>
+      <div class="notification-body">
+        <span class="notification-text">Complete your training</span>
+        <span class="notification-date">{{ date | date: 'mediumDate' }}</span>
+      </div>
+    </div>
+    <div class="notification-item priority-warning">
+      <div class="notification-dot warning"></div>
+      <div class="notification-body">
+        <span class="notification-text">Test notification</span>
+        <span class="notification-date">{{ date | date: 'mediumDate' }}</span>
+      </div>
+    </div>
+  </div>
+</div>

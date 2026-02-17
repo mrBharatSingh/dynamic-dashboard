@@ -1,52 +1,61 @@
-.example-list {
-    width: 1000px;
-    max-width: 100%;
-    border: solid 1px #ccc;
-    min-height: 60px;
-    display: flex;
-    flex-direction: row;
-    background: white;
-    border-radius: 4px;
-    overflow: hidden;
+.home-container {
+  padding: 1.25rem 1.5rem;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+:host ::ng-deep {
+  .modern-tabs {
+    .p-tabview-nav-container {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      padding: 0 0.5rem;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-color);
+      border-bottom: none;
+      transition: background-color var(--transition-normal), border-color var(--transition-normal);
+    }
+    .p-tabview-nav {
+      border: none !important;
+    }
+    .p-tabview-nav li {
+      margin-right: 0.15rem;
+    }
+    .p-tabview-nav li .p-tabview-nav-link {
+      border: none !important;
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      padding: 0.9rem 1.25rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: all 0.25s ease;
+      gap: 0.5rem;
+      position: relative;
+
+      &:hover {
+        background: var(--bg-hover);
+        color: var(--text-primary);
+      }
+    }
+    .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+      background: transparent;
+      color: var(--primary) !important;
+      font-weight: 600;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 1rem;
+        right: 1rem;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary), var(--accent, var(--primary)));
+        border-radius: 3px 3px 0 0;
+      }
+    }
+    .p-tabview-panels {
+      background: transparent;
+      padding: 1.25rem 0;
+      border: none;
+    }
   }
-  
-  .example-box {
-    padding: 20px 10px;
-    border-right: solid 1px #ccc;
-    color: rgba(0, 0, 0, 0.87);
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    box-sizing: border-box;
-    cursor: move;
-    background: white;
-    font-size: 14px;
-    flex-grow: 1;
-    flex-basis: 0;
-  }
-  
-  .cdk-drag-preview {
-    box-sizing: border-box;
-    border-radius: 4px;
-    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
-                0 8px 10px 1px rgba(0, 0, 0, 0.14),
-                0 3px 14px 2px rgba(0, 0, 0, 0.12);
-  }
-  
-  .cdk-drag-placeholder {
-    opacity: 0;
-  }
-  
-  .cdk-drag-animating {
-    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-  }
-  
-  .example-box:last-child {
-    border: none;
-  }
-  
-  .example-list.cdk-drop-list-dragging .example-box:not(.cdk-drag-placeholder) {
-    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-  }
-  
+}
