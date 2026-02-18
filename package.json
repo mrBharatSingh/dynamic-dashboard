@@ -5,7 +5,9 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "watch": "ng build --watch --configuration development",
+    "build:package": "npm run build && npm run package",
+    "dev": "npm run build:package -- --watch --configuration development",
+    "prod": "ng build --configuration production && npm run package",
     "test": "ng test",
     "package": "node packagescript.js"
   },

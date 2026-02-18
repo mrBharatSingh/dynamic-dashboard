@@ -8,7 +8,7 @@ import { DashboardDataService } from '../services/dashboard-data.service';
 })
 export class HomeComponent implements OnInit {
   selectedTabIndex = 0;
-  boardlist: string[];
+  boardlist: string[] = [];
 
   constructor(private dashboardService: DashboardDataService) {}
 
@@ -16,9 +16,5 @@ export class HomeComponent implements OnInit {
     this.dashboardService.dashboardName.subscribe((result) => {
       this.boardlist = result;
     });
-  }
-
-  onTabChanged(event: any) {
-    this.selectedTabIndex = event.index;
   }
 }

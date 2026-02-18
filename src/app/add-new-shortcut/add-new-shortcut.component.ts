@@ -40,14 +40,14 @@ export class AddNewShortcutComponent implements OnInit {
 
   onColorChange(color: string) {
     if (color) {
-      this.myForm.patchValue({ backgroundColor: '#' + color });
+      this.myForm.patchValue({ backgroundColor: color });
     }
   }
 
   submit(): void {
     let obj = { ...this.myForm.value };
     if (this.selectedColor) {
-      obj.backgroundColor = '#' + this.selectedColor;
+      obj.backgroundColor = this.selectedColor;
     }
     if (this.data.id !== undefined) {
       obj.id = this.data.id;

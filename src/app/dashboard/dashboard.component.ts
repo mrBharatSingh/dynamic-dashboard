@@ -1,6 +1,8 @@
 import {
   Component,
   OnInit,
+  OnChanges,
+  SimpleChanges,
   ViewChild,
   AfterViewInit,
   HostListener,
@@ -20,7 +22,7 @@ import { Observable } from 'rxjs';
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnChanges {
   @Input() dashboardName: string;
   cols = 25;
   rowHeight = 75;
@@ -38,16 +40,31 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private dashboardService: DashboardDataService,
-    private http: HttpClient
+    private http: HttpClient,
   ) {}
 
   ngOnInit(): void {
+    this.loadLayout();
+    this.innerWidth = window.innerWidth;
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['dashboardName'] && !changes['dashboardName'].firstChange) {
+      this.loadLayout();
+    }
+  }
+
+  loadLayout() {
     this.layout =
       JSON.parse(
-        localStorage.getItem(this.dashboardName + 'DashBoardGridLayout')
-      ) || this.layout;
-
-    this.innerWidth = window.innerWidth;
+        localStorage.getItem(this.dashboardName + 'DashBoardGridLayout'),
+      ) || [];
+    // Trigger grid resize to fix layout rendering after tab switch
+    setTimeout(() => {
+      if (this.grid) {
+        this.grid.resize();
+      }
+    });
   }
 
   getData(): Observable<any> {
@@ -142,7 +159,7 @@ export class DashboardComponent implements OnInit {
     this.editMode = false;
     localStorage.setItem(
       this.dashboardName + 'DashBoardGridLayout',
-      JSON.stringify([...this.layout])
+      JSON.stringify([...this.layout]),
     );
   }
 
