@@ -9,8 +9,7 @@
     "dev": "npm run build:package -- --watch --configuration development",
     "prod": "ng build --configuration production --base-href /dynamic-dashboard/ && npm run package",
     "test": "ng test",
-    "package": "node packagescript.js",
-    "build:single": "ng build --single-bundle && node bundle.js"
+    "package": "node packagescript.js"
   },
   "private": true,
   "dependencies": {

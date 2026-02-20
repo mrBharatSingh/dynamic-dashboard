@@ -1,27 +1,87 @@
-# Dashboard
+# Dynamic Dashboard
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.2.8.
+The **Dynamic Dashboard** is a web application built using Angular (version 14.2.8). It provides a customizable and interactive dashboard interface where users can manage shortcuts, notifications, and other dashboard components. The application leverages PrimeNG for UI components, PrimeFlex for layout utilities, and Angular's robust framework for scalability and performance.
 
-## Development server
+## How to Use
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+### Demo Link
 
-## Code scaffolding
+Experience the live demo of the Dynamic Dashboard here:
+[Dynamic Dashboard Demo](https://mrbharatsingh.github.io/dynamic-dashboard/#/home)
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+### Development Server
 
-## Build
+1. Run the following command to start the development server:
+   ```bash
+   npm start
+   ```
+2. Navigate to `http://localhost:4200/` in your browser. The application will automatically reload when you make changes to the source files.
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+### Building the Project
 
-## Running unit tests
+To build the project for production, use:
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+```bash
+npm run prod
+```
 
-## Running end-to-end tests
+The build artifacts will be stored in the `dist/dashboard` directory.
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+### Running Tests
 
-## Further help
+To execute unit tests, run:
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+```bash
+npm test
+```
+
+The tests are powered by Karma and Jasmine.
+
+### Packaging
+
+To package the application, use:
+
+```bash
+npm run package
+```
+
+## Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-repo/dynamic-dashboard.git
+   ```
+2. Navigate to the project directory:
+   ```bash
+   cd dynamic-dashboard
+   ```
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+## Key Features
+
+- **Dynamic Dashboard Tabs**: Add, sync, and manage dashboard tabs dynamically.
+- **Shortcut Management**: Create and manage shortcuts for quick access to frequently used features.
+- **Notifications**: View and manage notifications in a dedicated section.
+- **Responsive Design**: Built with PrimeFlex for a mobile-friendly and responsive layout.
+- **Customizable Components**: Easily extendable with new components and features.
+
+## Technologies Used
+
+- **Angular**: Framework for building the application.
+- **PrimeNG**: UI components for a modern look and feel.
+- **PrimeFlex**: CSS utilities for responsive design.
+- **FileSaver**: For downloading files directly from the browser.
+- **Angular Grid Layout**: For managing grid-based layouts.
+
+## Folder Structure
+
+- **src/app**: Contains all the application components, services, and modules.
+- **src/assets**: Stores static assets like images and JSON files.
+- **src/environments**: Configuration files for different environments (e.g., development, production).
+
+## Contribution
+
+Feel free to contribute to this project by creating new components, fixing bugs, or improving documentation. Use the Angular CLI commands to scaffold new components or services.

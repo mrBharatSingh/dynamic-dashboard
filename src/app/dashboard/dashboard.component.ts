@@ -44,6 +44,120 @@ export class DashboardComponent implements OnInit, OnChanges {
   ) {}
 
   ngOnInit(): void {
+    const defaultLayout = [
+      {
+        id: '1',
+        x: 6,
+        y: 0,
+        w: 6,
+        h: 2,
+        name: 'Chat GPT',
+        url: 'https://chatgpt.com/',
+        backgroundColor: '#FF6F61',
+        boardName: 'AI Tools',
+      },
+      {
+        id: '2',
+        x: 12,
+        y: 0,
+        w: 6,
+        h: 1,
+        name: 'Bard',
+        url: 'https://bard.google.com/',
+        backgroundColor: '#6B5B95',
+        boardName: 'AI Tools',
+      },
+      {
+        id: '3',
+        x: 12,
+        y: 1,
+        w: 3,
+        h: 1,
+        name: 'Claude',
+        url: 'https://claude.ai/',
+        backgroundColor: '#88B04B',
+        boardName: 'AI Tools',
+      },
+      {
+        id: '4',
+        x: 15,
+        y: 1,
+        w: 3,
+        h: 1,
+        name: 'Gemini',
+        url: 'https://gemini.google.com/app',
+        backgroundColor: '#F7CAC9',
+        boardName: 'AI Tools',
+      },
+      {
+        id: '5',
+        x: 6,
+        y: 2,
+        w: 4,
+        h: 2,
+        name: 'DALL-E',
+        url: 'https://openai.com/dall-e',
+        backgroundColor: '#92A8D1',
+        boardName: 'AI Tools',
+      },
+      {
+        id: '6',
+        x: 10,
+        y: 2,
+        w: 4,
+        h: 1,
+        name: 'MidJourney',
+        url: 'https://midjourney.com/',
+        backgroundColor: '#955251',
+        boardName: 'AI Tools',
+      },
+      {
+        id: '7',
+        x: 10,
+        y: 3,
+        w: 4,
+        h: 1,
+        name: 'Stable Diffusion',
+        url: 'https://stablediffusionweb.com/',
+        backgroundColor: '#B565A7',
+        boardName: 'AI Tools',
+      },
+      {
+        id: '8',
+        x: 14,
+        y: 2,
+        w: 4,
+        h: 2,
+        name: 'Runway',
+        url: 'https://runwayml.com/',
+        backgroundColor: '#009B77',
+        boardName: 'AI Tools',
+      },
+      {
+        id: '9',
+        x: 6,
+        y: 4,
+        w: 12,
+        h: 1,
+        name: 'Hugging Face',
+        url: 'https://huggingface.co/',
+        backgroundColor: '#DD4124',
+        boardName: 'AI Tools',
+      },
+    ];
+
+    const savedLayout = localStorage.getItem(
+      this.dashboardName + 'DashBoardGridLayout',
+    );
+    if (
+      this.dashboardName === 'Home' &&
+      (!savedLayout || JSON.parse(savedLayout).length === 0)
+    ) {
+      localStorage.setItem(
+        this.dashboardName + 'DashBoardGridLayout',
+        JSON.stringify([...defaultLayout]),
+      );
+    }
     this.loadLayout();
     this.innerWidth = window.innerWidth;
   }
