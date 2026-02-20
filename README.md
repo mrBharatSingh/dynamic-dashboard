@@ -11,11 +11,27 @@ Experience the live demo of the Dynamic Dashboard here:
 
 ### Development Server
 
-1. Run the following command to start the development server:
+1. Clone the repository to your local machine:
+   ```bash
+   git clone https://github.com/your-repo/dynamic-dashboard.git
+   ```
+2. Navigate to the project directory:
+   ```bash
+   cd dynamic-dashboard
+   ```
+3. Install the required Node.js modules:
+   ```bash
+   npm install
+   ```
+4. Start the development server:
    ```bash
    npm start
    ```
-2. Navigate to `http://localhost:4200/` in your browser. The application will automatically reload when you make changes to the source files.
+5. Open your browser and navigate to:
+   ```
+   http://localhost:4200/
+   ```
+   The application will automatically reload when you make changes to the source files.
 
 ### Building the Project
 
@@ -44,21 +60,6 @@ To package the application, use:
 ```bash
 npm run package
 ```
-
-## Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-repo/dynamic-dashboard.git
-   ```
-2. Navigate to the project directory:
-   ```bash
-   cd dynamic-dashboard
-   ```
-3. Install dependencies:
-   ```bash
-   npm install
-   ```
 
 ## Key Features
 
