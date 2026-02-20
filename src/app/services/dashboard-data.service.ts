@@ -13,18 +13,16 @@ export class DashboardDataService {
   constructor(private http: HttpClient) {
     if (JSON.parse(localStorage.getItem('DashBoardNameArray'))) {
       this.dashboardName.next(
-        JSON.parse(localStorage.getItem('DashBoardNameArray')) as string[]
+        JSON.parse(localStorage.getItem('DashBoardNameArray')) as string[],
       );
     }
   }
-  getData(): Observable<any> {
-    return this.http.get<any>('dashBoardData.json');
-  }
+
   downloadJSON() {
     let jsonData = {};
     this.dashboardName.value.forEach((el) => {
       jsonData[el] = JSON.parse(
-        localStorage.getItem(el + 'DashBoardGridLayout')
+        localStorage.getItem(el + 'DashBoardGridLayout'),
       );
     });
     const json = JSON.stringify(jsonData);

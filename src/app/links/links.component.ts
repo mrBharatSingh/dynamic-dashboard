@@ -18,19 +18,29 @@ export class LinksComponent implements OnInit {
 
   defaultData = [
     {
-      toolName: 'IQM',
-      description: 'Integration Queue Manager',
-      url: 'https://brksw-ci.zf-world.com/iqm/#/',
+      toolName: 'Chat GPT',
+      description: 'AI language model for generating human-like text',
+      url: 'https://chatgpt.com/',
     },
     {
-      toolName: 'PDB',
-      description: 'Project database management tool',
-      url: 'https://adw.zf-world.com/pdb/#/home',
+      toolName: 'Gemini',
+      description: 'AI model by Google for various applications',
+      url: 'https://gemini.google.com/app',
     },
     {
-      toolName: 'Ticket System',
-      description: 'Ticket system',
-      url: 'https://adw.zf-world.com/tickets/',
+      toolName: 'YouTube',
+      description: 'Video sharing platform',
+      url: 'https://www.youtube.com/',
+    },
+    {
+      toolName: 'Stack Overflow',
+      description: 'Community-driven Q&A for programmers',
+      url: 'https://stackoverflow.com/',
+    },
+    {
+      toolName: 'MDN Web Docs',
+      description: 'Resources for developers, by developers',
+      url: 'https://developer.mozilla.org/',
     },
   ];
 
@@ -51,7 +61,10 @@ export class LinksComponent implements OnInit {
   }
 
   applyFilter(event: Event | string) {
-    const filterValue = typeof event === 'string' ? event : (event.target as HTMLInputElement).value;
+    const filterValue =
+      typeof event === 'string'
+        ? event
+        : (event.target as HTMLInputElement).value;
     this.searchText = filterValue;
     if (this.dt) {
       this.dt.filterGlobal(filterValue, 'contains');
@@ -71,7 +84,7 @@ export class LinksComponent implements OnInit {
     this.showAddDialog = false;
     if (result) {
       let layout = JSON.parse(
-        localStorage.getItem(result.boardName + 'DashBoardGridLayout') || '[]'
+        localStorage.getItem(result.boardName + 'DashBoardGridLayout') || '[]',
       );
       let max = 0;
       layout.forEach((el: any) => {
@@ -90,7 +103,7 @@ export class LinksComponent implements OnInit {
       layout = [...layout, tempTile];
       localStorage.setItem(
         result.boardName + 'DashBoardGridLayout',
-        JSON.stringify([...layout])
+        JSON.stringify([...layout]),
       );
     }
   }
