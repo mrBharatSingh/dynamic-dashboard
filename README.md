@@ -9,7 +9,9 @@ The **Dynamic Dashboard** is a web application built using Angular (version 14.2
 Experience the live demo of the Dynamic Dashboard here:
 [Dynamic Dashboard Demo](https://mrbharatsingh.github.io/dynamic-dashboard/#/home)
 
-### Development Server
+### Development Server (Run locally)
+
+To run the development server locally in your browser, follow the steps below:
 
 1. Clone the repository to your local machine:
    ```bash
