@@ -7,7 +7,7 @@
     "build": "ng build",
     "build:package": "npm run build && npm run package",
     "dev": "npm run build:package -- --watch --configuration development",
-    "prod": "ng build --configuration production && npm run package",
+    "prod": "ng build --configuration production --base-href /dynamic-dashboard/ && npm run package",
     "test": "ng test",
     "package": "node packagescript.js",
     "build:single": "ng build --single-bundle && node bundle.js"
