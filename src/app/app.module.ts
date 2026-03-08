@@ -20,6 +20,7 @@ import { NotificationsComponent } from './notifications/notifications.component'
 import { AddNewDashboardTabComponent } from './add-new-dashboard-tab/add-new-dashboard-tab.component';
 import { SyncDashboardComponent } from './sync-dashboard/sync-dashboard.component';
 import { SharedDashboardComponent } from './shared-dashboard/shared-dashboard.component';
+import { AdminPanelComponent } from './admin-panel/admin-panel.component';
 
 // PrimeNG Modules
 import { ToolbarModule } from 'primeng/toolbar';
@@ -65,6 +66,7 @@ import { environment } from 'src/environments/environment';
     AddNewDashboardTabComponent,
     SyncDashboardComponent,
     SharedDashboardComponent,
+    AdminPanelComponent,
   ],
   imports: [
     BrowserModule,

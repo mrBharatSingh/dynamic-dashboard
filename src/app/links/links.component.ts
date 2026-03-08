@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { DashboardDataService } from '../services/dashboard-data.service';
 import { Table } from 'primeng/table';
+import { MessageService } from 'primeng/api';
+import { ToolsService } from 'src/libs/dashboard-api';
 
 @Component({
   standalone: false,
@@ -14,51 +15,45 @@ export class LinksComponent implements OnInit {
   searchText = '';
   showAddDialog = false;
   dialogData: any = {};
+  loading = false;
 
   @ViewChild('dt') dt: Table;
 
-  defaultData = [
-    {
-      toolName: 'Chat GPT',
-      description: 'AI language model for generating human-like text',
-      url: 'https://chatgpt.com/',
-    },
-    {
-      toolName: 'Gemini',
-      description: 'AI model by Google for various applications',
-      url: 'https://gemini.google.com/app',
-    },
-    {
-      toolName: 'YouTube',
-      description: 'Video sharing platform',
-      url: 'https://www.youtube.com/',
-    },
-    {
-      toolName: 'Stack Overflow',
-      description: 'Community-driven Q&A for programmers',
-      url: 'https://stackoverflow.com/',
-    },
-    {
-      toolName: 'MDN Web Docs',
-      description: 'Resources for developers, by developers',
-      url: 'https://developer.mozilla.org/',
-    },
-  ];
-
-  constructor() {}
+  constructor(
+    private toolsService: ToolsService,
+    private messageService: MessageService,
+  ) {}
 
   ngOnInit(): void {
-    this.refresh();
+    this.loadTools();
   }
 
-  refresh() {
-    this.linksData = JSON.parse(localStorage.getItem('dashBoardLinks') || '[]');
-    this.filteredData = [...this.linksData];
+  loadTools(): void {
+    this.loading = true;
+    this.toolsService.getAllTools().subscribe({
+      next: (res) => {
+        this.linksData = res.data ?? [];
+        this.filteredData = [...this.linksData];
+        this.loading = false;
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to load tools. Is the backend running?',
+        });
+        this.loading = false;
+      },
+    });
   }
 
-  syncLinks() {
-    localStorage.setItem('dashBoardLinks', JSON.stringify(this.defaultData));
-    this.refresh();
+  /** Refreshes tool list from the backend. */
+  refresh(): void {
+    this.searchText = '';
+    if (this.dt) {
+      this.dt.filterGlobal('', 'contains');
+    }
+    this.loadTools();
   }
 
   applyFilter(event: Event | string) {
@@ -109,3 +104,4 @@ export class LinksComponent implements OnInit {
     }
   }
 }
+

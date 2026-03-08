@@ -1,711 +1,1049 @@
 {
-  "openapi": "3.0.0",
-  "components": {
-    "examples": {},
-    "headers": {},
-    "parameters": {},
-    "requestBodies": {},
-    "responses": {},
-    "schemas": {
-      "Widget": {
-        "description": "A single widget placed on a dashboard grid.\r\nx/y/w/h describe position and size in grid units.",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Client-side unique identifier"
-          },
-          "x": {
-            "type": "number",
-            "format": "double",
-            "description": "Column index (grid X position)"
-          },
-          "y": {
-            "type": "number",
-            "format": "double",
-            "description": "Row index (grid Y position)"
-          },
-          "w": {
-            "type": "number",
-            "format": "double",
-            "description": "Width in grid columns"
-          },
-          "h": {
-            "type": "number",
-            "format": "double",
-            "description": "Height in grid rows"
-          },
-          "name": {
-            "type": "string",
-            "description": "Display label shown on the widget tile"
-          },
-          "url": {
-            "type": "string",
-            "description": "Target URL the widget links to"
-          },
-          "backgroundColor": {
-            "type": "string",
-            "description": "Hex colour string without '#' (e.g. \"3B82F6\")"
-          }
-        },
-        "required": [
-          "id",
-          "x",
-          "y",
-          "w",
-          "h",
-          "name",
-          "url",
-          "backgroundColor"
-        ],
-        "type": "object",
-        "additionalProperties": false
-      },
-      "DashboardDocument": {
-        "description": "A full persisted dashboard document as returned from the API.",
-        "properties": {
-          "_id": {
-            "type": "string",
-            "description": "MongoDB ObjectId string"
-          },
-          "email": {
-            "type": "string",
-            "description": "Owner's email address"
-          },
-          "dashboardName": {
-            "type": "string",
-            "description": "Human-readable dashboard title"
-          },
-          "widgets": {
-            "items": {
-              "$ref": "#/components/schemas/Widget"
-            },
-            "type": "array",
-            "description": "All widgets currently on this dashboard"
-          },
-          "isShared": {
-            "type": "boolean",
-            "description": "Whether this dashboard can be accessed publicly via the shared endpoint"
-          },
-          "createdAt": {
-            "type": "string",
-            "description": "ISO 8601 creation timestamp (auto-set by Mongoose)"
-          },
-          "updatedAt": {
-            "type": "string",
-            "description": "ISO 8601 last-update timestamp (auto-set by Mongoose)"
-          }
-        },
-        "required": [
-          "_id",
-          "email",
-          "dashboardName",
-          "widgets",
-          "isShared",
-          "createdAt",
-          "updatedAt"
-        ],
-        "type": "object",
-        "additionalProperties": false
-      },
-      "ApiResponse": {
-        "description": "Standard success wrapper returned by most endpoints",
-        "properties": {
-          "success": {
-            "type": "boolean"
-          },
-          "message": {
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/DashboardDocument",
-            "description": "Single dashboard payload"
-          }
-        },
-        "required": ["success"],
-        "type": "object",
-        "additionalProperties": false
-      },
-      "ErrorResponse": {
-        "description": "Used in",
-        "properties": {
-          "success": {
-            "type": "boolean",
-            "enum": [false],
-            "nullable": false
-          },
-          "message": {
-            "type": "string"
-          }
-        },
-        "required": ["success", "message"],
-        "type": "object",
-        "additionalProperties": false
-      },
-      "BackupDashboardBody": {
-        "description": "Request body for POST /api/dashboard/backup",
-        "properties": {
-          "email": {
-            "type": "string",
-            "description": "Owner email – used as the primary lookup key"
-          },
-          "dashboardName": {
-            "type": "string",
-            "description": "Name / title for the dashboard"
-          },
-          "widgets": {
-            "items": {
-              "$ref": "#/components/schemas/Widget"
-            },
-            "type": "array",
-            "description": "Initial widget array (defaults to empty if omitted)"
-          }
-        },
-        "required": ["email", "dashboardName"],
-        "type": "object",
-        "additionalProperties": false
-      },
-      "MultiDashboardResponse": {
-        "description": "Returned by GET /api/dashboard/user/:email",
-        "properties": {
-          "success": {
-            "type": "boolean"
-          },
-          "count": {
-            "type": "number",
-            "format": "double",
-            "description": "Total number of dashboards returned"
-          },
-          "data": {
-            "items": {
-              "$ref": "#/components/schemas/DashboardDocument"
-            },
-            "type": "array"
-          }
-        },
-        "required": ["success", "count", "data"],
-        "type": "object",
-        "additionalProperties": false
-      },
-      "UpdateDashboardBody": {
-        "description": "Request body for PUT /api/dashboard/:dashboardId",
-        "properties": {
-          "dashboardName": {
-            "type": "string",
-            "description": "New title for the dashboard (optional)"
-          },
-          "widgets": {
-            "items": {
-              "$ref": "#/components/schemas/Widget"
-            },
-            "type": "array",
-            "description": "Replacement widget array (optional)"
-          }
-        },
-        "type": "object",
-        "additionalProperties": false
-      },
-      "DeleteResponse": {
-        "description": "Returned by DELETE /api/dashboard/:dashboardId",
-        "properties": {
-          "success": {
-            "type": "boolean"
-          },
-          "message": {
-            "type": "string"
-          }
-        },
-        "required": ["success", "message"],
-        "type": "object",
-        "additionalProperties": false
-      },
-      "ShareDashboardResponse": {
-        "description": "Returned by POST /api/dashboard/share/:dashboardId",
-        "properties": {
-          "success": {
-            "type": "boolean"
-          },
-          "message": {
-            "type": "string"
-          },
-          "shareUrl": {
-            "type": "string",
-            "description": "Relative share path – mountable on any frontend origin"
-          },
-          "fullUrl": {
-            "type": "string",
-            "description": "Fully qualified share link including frontend base URL"
-          },
-          "data": {
-            "$ref": "#/components/schemas/DashboardDocument"
-          }
-        },
-        "required": ["success", "message", "shareUrl", "fullUrl", "data"],
-        "type": "object",
-        "additionalProperties": false
-      }
-    },
-    "securitySchemes": {}
-  },
-  "info": {
-    "title": "dashboard-backup-api",
-    "version": "1.0.0",
-    "description": "Production-ready API for creating, backing up, retrieving, and sharing dashboards. Built with Node.js, Express, and MongoDB.",
-    "license": {
-      "name": "MIT"
-    },
-    "contact": {
-      "name": "Dashboard API Support"
-    }
-  },
-  "paths": {
-    "/dashboard/backup": {
-      "post": {
-        "operationId": "BackupDashboard",
-        "responses": {
-          "201": {
-            "description": "Dashboard backed up successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponse"
-                },
-                "examples": {
-                  "Example 1": {
-                    "value": {
-                      "email": "user@example.com",
-                      "dashboardName": "AI Tools",
-                      "widgets": [
-                        {
-                          "id": "1",
-                          "x": 0,
-                          "y": 0,
-                          "w": 2,
-                          "h": 2,
-                          "name": "Google",
-                          "url": "https://www.google.com",
-                          "backgroundColor": "3B82F6"
-                        }
-                      ]
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Validation error – email or dashboardName missing",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "description": "Saves a new dashboard to MongoDB for the given user.\r\nIf the user already has a dashboard with the same name a second document\r\nis still created – callers must check for duplicates themselves.",
-        "tags": ["Dashboard"],
-        "security": [],
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/BackupDashboardBody"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/dashboard/user/{email}": {
-      "get": {
-        "operationId": "GetUserDashboards",
-        "responses": {
-          "200": {
-            "description": "List of dashboards",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MultiDashboardResponse"
-                },
-                "examples": {
-                  "Example 1": {
-                    "value": {
-                      "success": true,
-                      "count": 1,
-                      "data": [
-                        {
-                          "_id": "665f1b2c3d4e5f6a7b8c9d0e",
-                          "email": "user@example.com",
-                          "dashboardName": "AI Tools",
-                          "widgets": [],
-                          "isShared": false,
-                          "createdAt": "2026-03-08T10:00:00.000Z",
-                          "updatedAt": "2026-03-08T10:00:00.000Z"
-                        }
-                      ]
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "description": "Returns all dashboards belonging to the given email address, sorted\r\nnewest-first. Returns an empty array when no dashboards exist.",
-        "tags": ["Dashboard"],
-        "security": [],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "email",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ]
-      }
-    },
-    "/dashboard/single/{dashboardId}": {
-      "get": {
-        "operationId": "GetDashboardById",
-        "responses": {
-          "200": {
-            "description": "Dashboard document",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid dashboard ID",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Dashboard not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "description": "Returns a single dashboard document by its MongoDB ObjectId.",
-        "tags": ["Dashboard"],
-        "security": [],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "dashboardId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ]
-      }
-    },
-    "/dashboard/{dashboardId}": {
-      "put": {
-        "operationId": "UpdateDashboard",
-        "responses": {
-          "200": {
-            "description": "Dashboard updated successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid ID or no fields provided",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Dashboard not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "description": "Updates the `dashboardName` and/or `widgets` array of an existing\r\ndashboard. Passing neither field returns a 400 error.",
-        "tags": ["Dashboard"],
-        "security": [],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "dashboardId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateDashboardBody"
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "operationId": "DeleteDashboard",
-        "responses": {
-          "200": {
-            "description": "Dashboard deleted successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DeleteResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid dashboard ID",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Dashboard not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "description": "Permanently removes a dashboard document by its MongoDB ObjectId.",
-        "tags": ["Dashboard"],
-        "security": [],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "dashboardId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ]
-      }
-    },
-    "/dashboard/share/{dashboardId}": {
-      "post": {
-        "operationId": "ShareDashboard",
-        "responses": {
-          "200": {
-            "description": "Dashboard shared successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ShareDashboardResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid dashboard ID",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Dashboard not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "description": "Marks a dashboard as publicly shared and returns a shareable link.\r\nOnce shared, the dashboard can be read via GET /api/dashboard/shared/:id\r\nby any client without authentication.",
-        "tags": ["Dashboard"],
-        "security": [],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "dashboardId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ]
-      }
-    },
-    "/dashboard/shared/{dashboardId}": {
-      "get": {
-        "operationId": "GetSharedDashboard",
-        "responses": {
-          "200": {
-            "description": "Shared dashboard document",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid dashboard ID",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Dashboard not found or sharing disabled",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "description": "Public endpoint – returns a dashboard only when `isShared` is true.\r\nSafe to expose without authentication.",
-        "tags": ["Dashboard"],
-        "security": [],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "dashboardId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ]
-      }
-    }
-  },
-  "servers": [
-    {
-      "url": "https://[object Object]/"
-    }
-  ],
-  "tags": [
-    {
-      "name": "Dashboard",
-      "description": "Dashboard backup, retrieval, update, deletion, and sharing operations"
-    }
-  ]
+	"openapi": "3.0.0",
+	"components": {
+		"examples": {},
+		"headers": {},
+		"parameters": {},
+		"requestBodies": {},
+		"responses": {},
+		"schemas": {
+			"ToolLink": {
+				"description": "A single tool URL entry managed by admins and shown to all users.",
+				"properties": {
+					"_id": {
+						"type": "string",
+						"description": "MongoDB ObjectId string"
+					},
+					"toolName": {
+						"type": "string",
+						"description": "Display name of the tool"
+					},
+					"description": {
+						"type": "string",
+						"description": "Short description of the tool"
+					},
+					"url": {
+						"type": "string",
+						"description": "Full URL the tool links to"
+					},
+					"createdAt": {
+						"type": "string",
+						"description": "ISO 8601 creation timestamp"
+					},
+					"updatedAt": {
+						"type": "string",
+						"description": "ISO 8601 last-update timestamp"
+					}
+				},
+				"required": [
+					"_id",
+					"toolName",
+					"description",
+					"url",
+					"createdAt",
+					"updatedAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ToolsListResponse": {
+				"description": "Returned by GET /api/tools",
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"count": {
+						"type": "number",
+						"format": "double"
+					},
+					"data": {
+						"items": {
+							"$ref": "#/components/schemas/ToolLink"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"success",
+					"count",
+					"data"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ErrorResponse": {
+				"description": "Used in",
+				"properties": {
+					"success": {
+						"type": "boolean",
+						"enum": [
+							false
+						],
+						"nullable": false
+					},
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ToolResponse": {
+				"description": "Returned by POST /api/tools",
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"message": {
+						"type": "string"
+					},
+					"data": {
+						"$ref": "#/components/schemas/ToolLink"
+					}
+				},
+				"required": [
+					"success"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"AddToolBody": {
+				"description": "Request body for POST /api/tools",
+				"properties": {
+					"toolName": {
+						"type": "string",
+						"description": "Display name of the tool"
+					},
+					"description": {
+						"type": "string",
+						"description": "Short description of the tool"
+					},
+					"url": {
+						"type": "string",
+						"description": "Full URL the tool links to"
+					}
+				},
+				"required": [
+					"toolName",
+					"description",
+					"url"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"DeleteToolResponse": {
+				"description": "Returned by DELETE /api/tools/:toolId",
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Widget": {
+				"description": "A single widget placed on a dashboard grid.\r\nx/y/w/h describe position and size in grid units.",
+				"properties": {
+					"id": {
+						"type": "string",
+						"description": "Client-side unique identifier"
+					},
+					"x": {
+						"type": "number",
+						"format": "double",
+						"description": "Column index (grid X position)"
+					},
+					"y": {
+						"type": "number",
+						"format": "double",
+						"description": "Row index (grid Y position)"
+					},
+					"w": {
+						"type": "number",
+						"format": "double",
+						"description": "Width in grid columns"
+					},
+					"h": {
+						"type": "number",
+						"format": "double",
+						"description": "Height in grid rows"
+					},
+					"name": {
+						"type": "string",
+						"description": "Display label shown on the widget tile"
+					},
+					"url": {
+						"type": "string",
+						"description": "Target URL the widget links to"
+					},
+					"backgroundColor": {
+						"type": "string",
+						"description": "Hex colour string without '#' (e.g. \"3B82F6\")"
+					}
+				},
+				"required": [
+					"id",
+					"x",
+					"y",
+					"w",
+					"h",
+					"name",
+					"url",
+					"backgroundColor"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"DashboardDocument": {
+				"description": "A full persisted dashboard document as returned from the API.",
+				"properties": {
+					"_id": {
+						"type": "string",
+						"description": "MongoDB ObjectId string"
+					},
+					"email": {
+						"type": "string",
+						"description": "Owner's email address"
+					},
+					"dashboardName": {
+						"type": "string",
+						"description": "Human-readable dashboard title"
+					},
+					"widgets": {
+						"items": {
+							"$ref": "#/components/schemas/Widget"
+						},
+						"type": "array",
+						"description": "All widgets currently on this dashboard"
+					},
+					"isShared": {
+						"type": "boolean",
+						"description": "Whether this dashboard can be accessed publicly via the shared endpoint"
+					},
+					"createdAt": {
+						"type": "string",
+						"description": "ISO 8601 creation timestamp (auto-set by Mongoose)"
+					},
+					"updatedAt": {
+						"type": "string",
+						"description": "ISO 8601 last-update timestamp (auto-set by Mongoose)"
+					}
+				},
+				"required": [
+					"_id",
+					"email",
+					"dashboardName",
+					"widgets",
+					"isShared",
+					"createdAt",
+					"updatedAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ApiResponse": {
+				"description": "Standard success wrapper returned by most endpoints",
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"message": {
+						"type": "string"
+					},
+					"data": {
+						"$ref": "#/components/schemas/DashboardDocument",
+						"description": "Single dashboard payload"
+					}
+				},
+				"required": [
+					"success"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"BackupDashboardBody": {
+				"description": "Request body for POST /api/dashboard/backup",
+				"properties": {
+					"email": {
+						"type": "string",
+						"description": "Owner email – used as the primary lookup key"
+					},
+					"dashboardName": {
+						"type": "string",
+						"description": "Name / title for the dashboard"
+					},
+					"widgets": {
+						"items": {
+							"$ref": "#/components/schemas/Widget"
+						},
+						"type": "array",
+						"description": "Initial widget array (defaults to empty if omitted)"
+					}
+				},
+				"required": [
+					"email",
+					"dashboardName"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"MultiDashboardResponse": {
+				"description": "Returned by GET /api/dashboard/user/:email",
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"count": {
+						"type": "number",
+						"format": "double",
+						"description": "Total number of dashboards returned"
+					},
+					"data": {
+						"items": {
+							"$ref": "#/components/schemas/DashboardDocument"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"success",
+					"count",
+					"data"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"UpdateDashboardBody": {
+				"description": "Request body for PUT /api/dashboard/:dashboardId",
+				"properties": {
+					"dashboardName": {
+						"type": "string",
+						"description": "New title for the dashboard (optional)"
+					},
+					"widgets": {
+						"items": {
+							"$ref": "#/components/schemas/Widget"
+						},
+						"type": "array",
+						"description": "Replacement widget array (optional)"
+					}
+				},
+				"type": "object",
+				"additionalProperties": false
+			},
+			"DeleteResponse": {
+				"description": "Returned by DELETE /api/dashboard/:dashboardId",
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ShareDashboardResponse": {
+				"description": "Returned by POST /api/dashboard/share/:dashboardId",
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"message": {
+						"type": "string"
+					},
+					"shareUrl": {
+						"type": "string",
+						"description": "Relative share path – mountable on any frontend origin"
+					},
+					"fullUrl": {
+						"type": "string",
+						"description": "Fully qualified share link including frontend base URL"
+					},
+					"data": {
+						"$ref": "#/components/schemas/DashboardDocument"
+					}
+				},
+				"required": [
+					"success",
+					"message",
+					"shareUrl",
+					"fullUrl",
+					"data"
+				],
+				"type": "object",
+				"additionalProperties": false
+			}
+		},
+		"securitySchemes": {}
+	},
+	"info": {
+		"title": "dashboard-backup-api",
+		"version": "1.0.0",
+		"description": "Production-ready API for creating, backing up, retrieving, and sharing dashboards. Built with Node.js, Express, and MongoDB.",
+		"license": {
+			"name": "MIT"
+		},
+		"contact": {
+			"name": "Dashboard API Support"
+		}
+	},
+	"paths": {
+		"/tools": {
+			"get": {
+				"operationId": "GetAllTools",
+				"responses": {
+					"200": {
+						"description": "List of tool URLs",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ToolsListResponse"
+								},
+								"examples": {
+									"Example 1": {
+										"value": {
+											"success": true,
+											"count": 2,
+											"data": [
+												{
+													"_id": "665f1b2c3d4e5f6a7b8c9d0e",
+													"toolName": "Chat GPT",
+													"description": "AI language model for generating human-like text",
+													"url": "https://chatgpt.com/",
+													"createdAt": "2026-03-08T10:00:00.000Z",
+													"updatedAt": "2026-03-08T10:00:00.000Z"
+												}
+											]
+										}
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Returns all tool URL entries, sorted alphabetically by tool name.\r\nThis list is displayed to all users in the Links / Address Book tab.",
+				"tags": [
+					"Tools"
+				],
+				"security": [],
+				"parameters": []
+			},
+			"post": {
+				"operationId": "AddTool",
+				"responses": {
+					"201": {
+						"description": "Tool added successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ToolResponse"
+								},
+								"examples": {
+									"Example 1": {
+										"value": {
+											"toolName": "MDN Web Docs",
+											"description": "Resources for developers, by developers",
+											"url": "https://developer.mozilla.org/"
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Validation error – missing required fields",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Creates a new tool URL entry in MongoDB.\r\nRequires toolName, description, and url in the request body.",
+				"tags": [
+					"Tools"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/AddToolBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/tools/{toolId}": {
+			"delete": {
+				"operationId": "DeleteTool",
+				"responses": {
+					"200": {
+						"description": "Tool deleted successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/DeleteToolResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid tool ID",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Tool not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Permanently removes a tool entry by its MongoDB ObjectId.",
+				"tags": [
+					"Tools"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "toolId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/dashboard/backup": {
+			"post": {
+				"operationId": "BackupDashboard",
+				"responses": {
+					"201": {
+						"description": "Dashboard backed up successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								},
+								"examples": {
+									"Example 1": {
+										"value": {
+											"email": "user@example.com",
+											"dashboardName": "AI Tools",
+											"widgets": [
+												{
+													"id": "1",
+													"x": 0,
+													"y": 0,
+													"w": 2,
+													"h": 2,
+													"name": "Google",
+													"url": "https://www.google.com",
+													"backgroundColor": "3B82F6"
+												}
+											]
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Validation error – email or dashboardName missing",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Saves or updates a dashboard for the given user.\r\nIf a dashboard with the same email + dashboardName already exists it is\r\nupdated (widgets replaced). Otherwise a new document is created.\r\nThis prevents duplicate dashboard entries in the database.",
+				"tags": [
+					"Dashboard"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/BackupDashboardBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/dashboard/user/{email}": {
+			"get": {
+				"operationId": "GetUserDashboards",
+				"responses": {
+					"200": {
+						"description": "List of dashboards",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MultiDashboardResponse"
+								},
+								"examples": {
+									"Example 1": {
+										"value": {
+											"success": true,
+											"count": 1,
+											"data": [
+												{
+													"_id": "665f1b2c3d4e5f6a7b8c9d0e",
+													"email": "user@example.com",
+													"dashboardName": "AI Tools",
+													"widgets": [],
+													"isShared": false,
+													"createdAt": "2026-03-08T10:00:00.000Z",
+													"updatedAt": "2026-03-08T10:00:00.000Z"
+												}
+											]
+										}
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Returns all dashboards belonging to the given email address, sorted\r\nnewest-first. Returns an empty array when no dashboards exist.",
+				"tags": [
+					"Dashboard"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "email",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/dashboard/single/{dashboardId}": {
+			"get": {
+				"operationId": "GetDashboardById",
+				"responses": {
+					"200": {
+						"description": "Dashboard document",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid dashboard ID",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Dashboard not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Returns a single dashboard document by its MongoDB ObjectId.",
+				"tags": [
+					"Dashboard"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "dashboardId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/dashboard/{dashboardId}": {
+			"put": {
+				"operationId": "UpdateDashboard",
+				"responses": {
+					"200": {
+						"description": "Dashboard updated successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid ID or no fields provided",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Dashboard not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Updates the `dashboardName` and/or `widgets` array of an existing\r\ndashboard. Passing neither field returns a 400 error.",
+				"tags": [
+					"Dashboard"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "dashboardId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateDashboardBody"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteDashboard",
+				"responses": {
+					"200": {
+						"description": "Dashboard deleted successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/DeleteResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid dashboard ID",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Dashboard not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Permanently removes a dashboard document by its MongoDB ObjectId.",
+				"tags": [
+					"Dashboard"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "dashboardId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/dashboard/share/{dashboardId}": {
+			"post": {
+				"operationId": "ShareDashboard",
+				"responses": {
+					"200": {
+						"description": "Dashboard shared successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ShareDashboardResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid dashboard ID",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Dashboard not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Marks a dashboard as publicly shared and returns a shareable link.\r\nOnce shared, the dashboard can be read via GET /api/dashboard/shared/:id\r\nby any client without authentication.",
+				"tags": [
+					"Dashboard"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "dashboardId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/dashboard/shared/{dashboardId}": {
+			"get": {
+				"operationId": "GetSharedDashboard",
+				"responses": {
+					"200": {
+						"description": "Shared dashboard document",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid dashboard ID",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Dashboard not found or sharing disabled",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Public endpoint – returns a dashboard only when `isShared` is true.\r\nSafe to expose without authentication.",
+				"tags": [
+					"Dashboard"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "dashboardId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		}
+	},
+	"servers": [
+		{
+			"url": "https://[object Object]/"
+		}
+	],
+	"tags": [
+		{
+			"name": "Dashboard",
+			"description": "Dashboard backup, retrieval, update, deletion, and sharing operations"
+		},
+		{
+			"name": "Tools",
+			"description": "Tool URL management for the Address Book / Links tab"
+		}
+	]
 }

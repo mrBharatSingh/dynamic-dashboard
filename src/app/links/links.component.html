@@ -1,4 +1,5 @@
 <div class="links-container">
+  <p-toast></p-toast>
   <p-card styleClass="links-card">
     <ng-template pTemplate="header">
       <div class="card-header">
@@ -6,15 +7,13 @@
           <i class="pi pi-book header-icon"></i>
           <h3>Address Book</h3>
         </div>
-        <button
-          pButton
-          pRipple
-          type="button"
-          icon="pi pi-sync"
-          label="Sync"
-          class="p-button-outlined p-button-sm"
-          (click)="syncLinks()"
-        ></button>
+        <div class="header-actions">
+          <button pButton pRipple type="button" icon="pi pi-refresh" label="Refresh"
+            class="p-button-outlined p-button-sm" [loading]="loading" (click)="refresh()"
+            pTooltip="Reload tools from server"></button>
+          <a routerLink="/admin" pButton pRipple type="button" icon="pi pi-shield" label="Admin"
+            class="p-button-outlined p-button-secondary p-button-sm" pTooltip="Manage tools (Admin Panel)"></a>
+        </div>
       </div>
     </ng-template>
 
@@ -22,39 +21,27 @@
     <div class="search-box">
       <span class="p-input-icon-left" style="width: 100%">
         <i class="pi pi-search"></i>
-        <input
-          type="text"
-          pInputText
-          placeholder="Search tools..."
-          style="width: 100%"
-          (input)="applyFilter($event)"
-        />
+        <input type="text" pInputText placeholder="Search tools..." style="width: 100%" (input)="applyFilter($event)" />
       </span>
     </div>
 
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-state">
+      <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+      <p>Loading tools…</p>
+    </div>
+
     <!-- Empty State -->
-    <div
-      *ngIf="!linksData || linksData.length === 0"
-      class="empty-state"
-    >
+    <div *ngIf="!loading && (!linksData || linksData.length === 0)" class="empty-state">
       <i class="pi pi-inbox"></i>
       <h4>No URLs Found</h4>
-      <p>Click "Sync" to load default links</p>
+      <p>Visit the <a routerLink="/admin">Admin Panel</a> to add tools.</p>
     </div>
 
     <!-- Data Table -->
-    <p-table
-      *ngIf="linksData && linksData.length > 0"
-      #dt
-      [value]="linksData"
-      [paginator]="true"
-      [rows]="10"
-      [rowsPerPageOptions]="[10, 25, 50]"
-      [globalFilterFields]="['toolName', 'description', 'url']"
-      [filterDelay]="0"
-      styleClass="p-datatable-sm p-datatable-striped"
-      responsiveLayout="scroll"
-    >
+    <p-table *ngIf="!loading && linksData && linksData.length > 0" #dt [value]="linksData" [paginator]="true"
+      [rows]="10" [rowsPerPageOptions]="[10, 25, 50]" [globalFilterFields]="['toolName', 'description', 'url']"
+      [filterDelay]="0" styleClass="p-datatable-sm p-datatable-striped" responsiveLayout="scroll">
       <ng-template pTemplate="header">
         <tr>
           <th pSortableColumn="toolName" style="width: 25%">
@@ -74,26 +61,14 @@
           </td>
           <td>{{ row.description }}</td>
           <td style="text-align: center">
-            <button
-              pButton
-              pRipple
-              type="button"
-              icon="pi pi-external-link"
-              class="p-button-rounded p-button-text p-button-sm"
-              (click)="goToLink(row.url)"
-              pTooltip="Open link"
-            ></button>
+            <button pButton pRipple type="button" icon="pi pi-external-link"
+              class="p-button-rounded p-button-text p-button-sm" (click)="goToLink(row.url)"
+              pTooltip="Open link"></button>
           </td>
           <td style="text-align: center">
-            <button
-              pButton
-              pRipple
-              type="button"
-              icon="pi pi-bookmark"
-              class="p-button-rounded p-button-text p-button-success p-button-sm"
-              (click)="addToDashboard(row)"
-              pTooltip="Add to dashboard"
-            ></button>
+            <button pButton pRipple type="button" icon="pi pi-bookmark"
+              class="p-button-rounded p-button-text p-button-success p-button-sm" (click)="addToDashboard(row)"
+              pTooltip="Add to dashboard"></button>
           </td>
         </tr>
       </ng-template>
@@ -109,18 +84,8 @@
 </div>
 
 <!-- Add Shortcut Dialog -->
-<p-dialog
-  header="Add to Dashboard"
-  [(visible)]="showAddDialog"
-  [modal]="true"
-  [style]="{ width: '550px' }"
-  [draggable]="false"
-  [resizable]="false"
->
-  <app-add-new-shortcut
-    *ngIf="showAddDialog"
-    [data]="dialogData"
-    (submitted)="onShortcutDialogClose($event)"
-    (cancelled)="showAddDialog = false"
-  ></app-add-new-shortcut>
+<p-dialog header="Add to Dashboard" [(visible)]="showAddDialog" [modal]="true" [style]="{ width: '550px' }"
+  [draggable]="false" [resizable]="false">
+  <app-add-new-shortcut *ngIf="showAddDialog" [data]="dialogData" (submitted)="onShortcutDialogClose($event)"
+    (cancelled)="showAddDialog = false"></app-add-new-shortcut>
 </p-dialog>
