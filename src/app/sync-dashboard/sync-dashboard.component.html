@@ -1,68 +1,235 @@
 <div class="sync-container">
-  <!-- Download Section -->
-  <div class="sync-section">
-    <div class="section-header">
-      <i class="pi pi-download section-icon"></i>
-      <div>
-        <h4>Download Dashboard</h4>
-        <p>Export your current dashboard configuration as JSON</p>
+  <!-- Tab switcher: Local | Cloud -->
+  <div class="tab-switcher">
+    <button
+      class="tab-btn"
+      [class.active]="activeTabIndex === 0"
+      (click)="activeTabIndex = 0"
+    >
+      <i class="pi pi-desktop"></i> Local Sync
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTabIndex === 1"
+      (click)="activeTabIndex = 1"
+    >
+      <i class="pi pi-cloud"></i> Cloud Backups
+    </button>
+  </div>
+
+  <!-- ── Tab 0: Local Sync ─────────────────────────────────────────────── -->
+  <ng-container *ngIf="activeTabIndex === 0">
+    <!-- Download Section -->
+    <div class="sync-section">
+      <div class="section-header">
+        <i class="pi pi-download section-icon"></i>
+        <div>
+          <h4>Download Dashboard</h4>
+          <p>Export your current dashboard configuration as JSON</p>
+        </div>
+      </div>
+      <button
+        pButton
+        pRipple
+        type="button"
+        icon="pi pi-download"
+        label="Download"
+        class="p-button-outlined"
+        (click)="download()"
+      ></button>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Upload Section -->
+    <div class="sync-section">
+      <div class="section-header">
+        <i class="pi pi-upload section-icon"></i>
+        <div>
+          <h4>Upload Dashboard</h4>
+          <p>Import a previously exported JSON data file</p>
+        </div>
+      </div>
+      <div class="upload-area">
+        <label for="fileInput" class="file-label">
+          <i class="pi pi-file"></i>
+          <span>{{ fileName || "Choose a file..." }}</span>
+        </label>
+        <input
+          id="fileInput"
+          type="file"
+          accept=".json"
+          (change)="fileChange($event)"
+          class="file-input"
+        />
       </div>
     </div>
-    <button
-      pButton
-      pRipple
-      type="button"
-      icon="pi pi-download"
-      label="Download"
-      class="p-button-outlined"
-      (click)="download()"
-    ></button>
-  </div>
 
-  <hr class="divider" />
+    <!-- Actions -->
+    <div class="dialog-actions">
+      <button
+        pButton
+        pRipple
+        type="button"
+        label="Cancel"
+        class="p-button-text"
+        (click)="cancel()"
+      ></button>
+      <button
+        pButton
+        pRipple
+        type="button"
+        label="Update Dashboard"
+        icon="pi pi-refresh"
+        [disabled]="!dashboardData"
+        (click)="updateData()"
+      ></button>
+    </div>
+  </ng-container>
 
-  <!-- Upload Section -->
-  <div class="sync-section">
-    <div class="section-header">
-      <i class="pi pi-upload section-icon"></i>
-      <div>
-        <h4>Upload Dashboard</h4>
-        <p>Import a previously exported JSON data file</p>
+  <!-- ── Tab 1: Cloud Backups ──────────────────────────────────────────── -->
+  <ng-container *ngIf="activeTabIndex === 1">
+    <!-- E-mail setup (shown when no email stored yet) -->
+    <ng-container *ngIf="!state.userEmail">
+      <div class="email-setup">
+        <i class="pi pi-user-edit email-icon"></i>
+        <p>Enter your account e-mail to view and manage cloud backups.</p>
+        <div class="email-row">
+          <input
+            pInputText
+            type="email"
+            [(ngModel)]="emailInput"
+            placeholder="you@example.com"
+            class="email-input"
+            (keyup.enter)="onSetEmail()"
+          />
+          <button
+            pButton
+            icon="pi pi-check"
+            label="Set Email"
+            class="p-button-sm"
+            [disabled]="!emailInput.includes('@')"
+            (click)="onSetEmail()"
+          ></button>
+        </div>
       </div>
-    </div>
-    <div class="upload-area">
-      <label for="fileInput" class="file-label">
-        <i class="pi pi-file"></i>
-        <span>{{ fileName || 'Choose a file...' }}</span>
-      </label>
-      <input
-        id="fileInput"
-        type="file"
-        accept=".json"
-        (change)="fileChange($event)"
-        class="file-input"
-      />
-    </div>
-  </div>
+    </ng-container>
 
-  <!-- Actions -->
-  <div class="dialog-actions">
-    <button
-      pButton
-      pRipple
-      type="button"
-      label="Cancel"
-      class="p-button-text"
-      (click)="cancel()"
-    ></button>
-    <button
-      pButton
-      pRipple
-      type="button"
-      label="Update Dashboard"
-      icon="pi pi-refresh"
-      [disabled]="!dashbordData"
-      (click)="updateData()"
-    ></button>
-  </div>
+    <!-- Cloud list (shown when email is set) -->
+    <ng-container *ngIf="state.userEmail">
+      <!-- Header row: email + refresh -->
+      <div class="cloud-header">
+        <span class="cloud-email">
+          <i class="pi pi-user"></i>
+          {{ state.userEmail }}
+        </span>
+        <button
+          pButton
+          icon="pi pi-refresh"
+          class="p-button-text p-button-sm"
+          pTooltip="Refresh list"
+          (click)="refreshCloudList()"
+          [disabled]="state.isLoading"
+        ></button>
+      </div>
+
+      <!-- Loading skeleton -->
+      <div *ngIf="state.isLoading" class="cloud-loading">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span>Loading backups…</span>
+      </div>
+
+      <!-- Empty state -->
+      <div
+        *ngIf="!state.isLoading && (state.dashboards$ | async)?.length === 0"
+        class="cloud-empty"
+      >
+        <i class="pi pi-cloud-upload empty-icon"></i>
+        <p>No cloud backups yet.</p>
+        <p class="hint">
+          Use the <strong>cloud upload</strong> button next to the Dark Mode
+          toggle to save your first backup.
+        </p>
+      </div>
+
+      <!-- Dashboard cards -->
+      <div
+        class="cloud-list"
+        *ngIf="!state.isLoading && (state.dashboards$ | async)?.length > 0"
+      >
+        <div class="cloud-card" *ngFor="let doc of state.dashboards$ | async">
+          <div class="cloud-card-info">
+            <span class="cloud-card-name">{{ doc.dashboardName }}</span>
+            <span class="cloud-card-meta">
+              {{ doc.widgets.length }} widget{{
+                doc.widgets.length !== 1 ? "s" : ""
+              }}
+              &bull; {{ formatDate(doc.updatedAt) }}
+            </span>
+            <span class="cloud-card-shared" *ngIf="doc.isShared">
+              <i class="pi pi-globe"></i> Shared
+            </span>
+          </div>
+
+          <div class="cloud-card-actions">
+            <!-- Load into local -->
+            <button
+              pButton
+              icon="pi pi-download"
+              class="p-button-text p-button-sm"
+              pTooltip="Load into local dashboard"
+              (click)="loadCloudDashboard(doc)"
+            ></button>
+
+            <!-- Push local → cloud (update) -->
+            <button
+              pButton
+              icon="pi pi-cloud-upload"
+              class="p-button-text p-button-sm"
+              pTooltip="Overwrite cloud with current local layout"
+              (click)="pushLocalToCloud(doc)"
+            ></button>
+
+            <!-- Share & copy link -->
+            <button
+              pButton
+              [icon]="
+                sharingId === doc._id
+                  ? 'pi pi-spin pi-spinner'
+                  : 'pi pi-share-alt'
+              "
+              class="p-button-text p-button-sm"
+              pTooltip="Share & copy link"
+              [disabled]="sharingId === doc._id"
+              (click)="shareCloudDashboard(doc)"
+            ></button>
+
+            <!-- Delete -->
+            <button
+              pButton
+              [icon]="
+                deletingId === doc._id ? 'pi pi-spin pi-spinner' : 'pi pi-trash'
+              "
+              class="p-button-text p-button-sm p-button-danger"
+              pTooltip="Delete backup"
+              [disabled]="deletingId === doc._id"
+              (click)="deleteCloudDashboard(doc)"
+            ></button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Close button -->
+    <div class="dialog-actions">
+      <button
+        pButton
+        pRipple
+        type="button"
+        label="Close"
+        class="p-button-text"
+        (click)="cancel()"
+      ></button>
+    </div>
+  </ng-container>
 </div>

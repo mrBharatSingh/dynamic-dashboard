@@ -45,6 +45,57 @@
       pTooltip="Save Dashboard"
       (click)="saveGridTile()"
     ></button>
+
+    <!-- ── Cloud actions (view mode only) ──────────────────────── -->
+    <ng-container *ngIf="!editMode && cloudDoc">
+      <!-- Push local → cloud -->
+      <button
+        pButton
+        pRipple
+        type="button"
+        [icon]="cloudSaving ? 'pi pi-spin pi-spinner' : 'pi pi-cloud-upload'"
+        label="Update Cloud"
+        class="p-button-outlined p-button-sm"
+        pTooltip="Overwrite cloud backup with current layout"
+        [disabled]="cloudSaving"
+        (click)="updateCloudDashboard()"
+      ></button>
+
+      <!-- Share -->
+      <button
+        pButton
+        pRipple
+        type="button"
+        [icon]="cloudSharing ? 'pi pi-spin pi-spinner' : 'pi pi-share-alt'"
+        label="Share"
+        class="p-button-outlined p-button-sm"
+        pTooltip="Share dashboard & copy link"
+        [disabled]="cloudSharing"
+        (click)="shareCloudDashboard()"
+      ></button>
+
+      <!-- Delete cloud backup -->
+      <button
+        pButton
+        pRipple
+        type="button"
+        [icon]="cloudDeleting ? 'pi pi-spin pi-spinner' : 'pi pi-trash'"
+        label="Delete Backup"
+        class="p-button-text p-button-sm p-button-danger"
+        pTooltip="Delete this dashboard from the cloud"
+        [disabled]="cloudDeleting"
+        (click)="deleteCloudDashboard()"
+      ></button>
+    </ng-container>
+
+    <!-- Shared badge -->
+    <span
+      *ngIf="!editMode && cloudDoc?.isShared"
+      class="shared-badge"
+      pTooltip="This dashboard is publicly shared"
+    >
+      <i class="pi pi-globe"></i> Shared
+    </span>
   </div>
 </div>
 

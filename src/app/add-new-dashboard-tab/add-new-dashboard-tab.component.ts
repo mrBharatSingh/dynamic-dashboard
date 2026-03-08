@@ -3,6 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { DashboardDataService } from '../services/dashboard-data.service';
 
 @Component({
+  standalone: false,
   selector: 'app-add-new-dashboard-tab',
   templateUrl: './add-new-dashboard-tab.component.html',
   styleUrls: ['./add-new-dashboard-tab.component.scss'],

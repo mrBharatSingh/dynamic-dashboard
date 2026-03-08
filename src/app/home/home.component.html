@@ -1,5 +1,9 @@
 <div class="home-container">
-  <p-tabView [(activeIndex)]="selectedTabIndex" styleClass="modern-tabs">
+  <p-tabView
+    [(activeIndex)]="selectedTabIndex"
+    (activeIndexChange)="onTabChange($event)"
+    styleClass="modern-tabs"
+  >
     <p-tabPanel
       *ngFor="let board of boardlist; let i = index"
       [header]="board"

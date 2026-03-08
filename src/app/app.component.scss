@@ -59,7 +59,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ---- Navbar ---- */
@@ -187,7 +189,9 @@
 
 .theme-toggle {
   i {
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease;
+    transition:
+      transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+      color 0.2s ease;
   }
 
   &:hover i {
@@ -216,8 +220,13 @@
 }
 
 @keyframes pulse-badge {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
 }
 
 .bell-animate {
@@ -227,17 +236,40 @@
 }
 
 @keyframes bellRing {
-  0%, 100% { transform: rotate(0); }
-  2% { transform: rotate(15deg); }
-  4% { transform: rotate(-13deg); }
-  6% { transform: rotate(17deg); }
-  8% { transform: rotate(-16deg); }
-  10% { transform: rotate(15deg); }
-  12% { transform: rotate(-12deg); }
-  14% { transform: rotate(9deg); }
-  16% { transform: rotate(-6deg); }
-  18% { transform: rotate(3deg); }
-  20% { transform: rotate(0); }
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  2% {
+    transform: rotate(15deg);
+  }
+  4% {
+    transform: rotate(-13deg);
+  }
+  6% {
+    transform: rotate(17deg);
+  }
+  8% {
+    transform: rotate(-16deg);
+  }
+  10% {
+    transform: rotate(15deg);
+  }
+  12% {
+    transform: rotate(-12deg);
+  }
+  14% {
+    transform: rotate(9deg);
+  }
+  16% {
+    transform: rotate(-6deg);
+  }
+  18% {
+    transform: rotate(3deg);
+  }
+  20% {
+    transform: rotate(0);
+  }
 }
 
 /* ---- Main Content ---- */
@@ -251,5 +283,48 @@
   width: 380px !important;
   .p-overlaypanel-content {
     padding: 0 !important;
+  }
+}
+
+/* ── Backup button ────────────────────────────────────────────────────────── */
+.backup-btn {
+  i {
+    transition:
+      transform 0.3s ease,
+      color 0.2s ease;
+  }
+
+  &:hover:not(:disabled) i {
+    transform: translateY(-2px);
+    color: #60a5fa; /* sky-400 */
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+
+  &.backup-loading i {
+    color: #60a5fa;
+  }
+}
+
+/* ── E-mail dialog ───────────────────────────────────────────────────────── */
+.email-dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.25rem 0;
+
+  .email-dialog-hint {
+    color: var(--text-muted, #9ca3af);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  input[pInputText] {
+    width: 100%;
   }
 }

@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withFetch } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
@@ -44,9 +44,13 @@ import { PaginatorModule } from 'primeng/paginator';
 import { TimelineModule } from 'primeng/timeline';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
+import { providePrimeNG } from 'primeng/config';
+import Aura from '@primeuix/themes/aura';
 
 // Keep KtdGrid for grid layout (no PrimeNG equivalent)
 import { KtdGridModule } from '@katoid/angular-grid-layout';
+import { ApiModule, Configuration } from 'src/libs/dashboard-api';
+import { environment } from 'src/environments/environment';
 
 @NgModule({
   declarations: [
@@ -62,7 +66,6 @@ import { KtdGridModule } from '@katoid/angular-grid-layout';
   ],
   imports: [
     BrowserModule,
-    HttpClientModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     FormsModule,
@@ -91,12 +94,24 @@ import { KtdGridModule } from '@katoid/angular-grid-layout';
     PaginatorModule,
     TimelineModule,
     ConfirmDialogModule,
+    ApiModule.forRoot(
+      () => new Configuration({ basePath: environment.apiBasePath }),
+    ),
   ],
   providers: [
     { provide: APP_BASE_HREF, useValue: '/' },
     { provide: LocationStrategy, useClass: HashLocationStrategy },
     MessageService,
     ConfirmationService,
+    provideHttpClient(withFetch()),
+    providePrimeNG({
+      theme: {
+        preset: Aura,
+        options: {
+          darkModeSelector: '[data-theme="dark"]',
+        },
+      },
+    }),
   ],
   bootstrap: [AppComponent],
 })

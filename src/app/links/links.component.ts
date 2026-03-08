@@ -3,6 +3,7 @@ import { DashboardDataService } from '../services/dashboard-data.service';
 import { Table } from 'primeng/table';
 
 @Component({
+  standalone: false,
   selector: 'app-links',
   templateUrl: './links.component.html',
   styleUrls: ['./links.component.scss'],

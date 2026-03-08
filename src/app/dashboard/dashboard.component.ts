@@ -13,11 +13,15 @@ import {
   KtdGridLayout,
   ktdTrackById,
 } from '@katoid/angular-grid-layout';
+import { ConfirmationService } from 'primeng/api';
 import { DashboardDataService } from '../services/dashboard-data.service';
+import { DashboardStateService } from '../services/dashboard-state.service';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import type { DashboardDocument } from '../../libs/dashboard-api';
 
 @Component({
+  standalone: false,
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
@@ -38,12 +42,21 @@ export class DashboardComponent implements OnInit, OnChanges {
   showAddDashboardDialog = false;
   dialogData: any = {};
 
+  /** The cloud-persisted version of this dashboard (null if never backed up). */
+  cloudDoc: DashboardDocument | null = null;
+  cloudSaving = false;
+  cloudSharing = false;
+  cloudDeleting = false;
+
   constructor(
     private dashboardService: DashboardDataService,
+    private dashboardState: DashboardStateService,
+    private confirmationService: ConfirmationService,
     private http: HttpClient,
   ) {}
 
   ngOnInit(): void {
+    this._syncCloudDoc();
     const defaultLayout = [
       {
         id: '1',
@@ -165,7 +178,23 @@ export class DashboardComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['dashboardName'] && !changes['dashboardName'].firstChange) {
       this.loadLayout();
+      this._syncCloudDoc();
     }
+  }
+
+  /**
+   * Looks up the cloud document for this dashboard tab from the state service.
+   * Called on init and whenever the dashboardName @Input changes.
+   */
+  private _syncCloudDoc(): void {
+    const all = this.dashboardState.dashboards;
+    this.cloudDoc =
+      all.find((d) => d.dashboardName === this.dashboardName) ?? null;
+    // Also subscribe so the card updates when a share/delete/update happens
+    this.dashboardState.dashboards$.subscribe((docs) => {
+      this.cloudDoc =
+        docs.find((d) => d.dashboardName === this.dashboardName) ?? null;
+    });
   }
 
   loadLayout() {
@@ -282,4 +311,65 @@ export class DashboardComponent implements OnInit, OnChanges {
   }
 
   ngOnDestroy() {}
+
+  // ── Cloud actions ──────────────────────────────────────────────────────────
+
+  /** Overwrites the cloud backup with the current local layout. */
+  updateCloudDashboard(): void {
+    if (!this.cloudDoc) return;
+    this.cloudSaving = true;
+    const widgets = this.dashboardService.getWidgetsForDashboard(
+      this.dashboardName,
+    );
+    this.dashboardState
+      .updateDashboard(this.cloudDoc._id, { widgets })
+      .subscribe({
+        next: (doc) => {
+          this.cloudDoc = doc;
+          this.cloudSaving = false;
+        },
+        error: () => {
+          this.cloudSaving = false;
+        },
+      });
+  }
+
+  /** Marks the cloud dashboard as shared and copies the link to clipboard. */
+  shareCloudDashboard(): void {
+    if (!this.cloudDoc) return;
+    this.cloudSharing = true;
+    this.dashboardState.shareDashboard(this.cloudDoc._id).subscribe({
+      next: (url) => {
+        navigator.clipboard?.writeText(url).catch(() => {});
+        this.cloudSharing = false;
+      },
+      error: () => {
+        this.cloudSharing = false;
+      },
+    });
+  }
+
+  /** Confirms then permanently deletes the cloud backup. */
+  deleteCloudDashboard(): void {
+    if (!this.cloudDoc) return;
+    this.confirmationService.confirm({
+      message: `Delete cloud backup of <strong>${this.dashboardName}</strong>?`,
+      header: 'Delete Cloud Backup',
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        if (!this.cloudDoc) return;
+        this.cloudDeleting = true;
+        this.dashboardState.deleteDashboard(this.cloudDoc._id).subscribe({
+          next: () => {
+            this.cloudDoc = null;
+            this.cloudDeleting = false;
+          },
+          error: () => {
+            this.cloudDeleting = false;
+          },
+        });
+      },
+    });
+  }
 }

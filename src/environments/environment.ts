@@ -3,7 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  /** Base URL for the Node.js/Express backend (no trailing slash) */
+  apiBasePath: 'http://localhost:5000/api',
 };
 
 /*

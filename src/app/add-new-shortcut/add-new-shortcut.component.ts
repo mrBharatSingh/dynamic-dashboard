@@ -3,6 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { DashboardDataService } from '../services/dashboard-data.service';
 
 @Component({
+  standalone: false,
   selector: 'app-add-new-shortcut',
   templateUrl: './add-new-shortcut.component.html',
   styleUrls: ['./add-new-shortcut.component.scss'],
@@ -38,8 +39,8 @@ export class AddNewShortcutComponent implements OnInit {
     });
   }
 
-  onColorChange(color: string) {
-    if (color) {
+  onColorChange(color: string | object | null) {
+    if (color && typeof color === 'string') {
       this.myForm.patchValue({ backgroundColor: color });
     }
   }
