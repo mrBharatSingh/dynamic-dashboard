@@ -1,0 +1,79 @@
+<div class="shared-page">
+
+    <!-- ── Loading ── -->
+    <div *ngIf="loading" class="shared-page__center">
+        <i class="pi pi-spin pi-spinner" style="font-size: 2.5rem"></i>
+        <p>Loading shared dashboard…</p>
+    </div>
+
+    <!-- ── Error ── -->
+    <div *ngIf="!loading && error" class="shared-page__center shared-page__error">
+        <i class="pi pi-exclamation-circle" style="font-size: 3rem"></i>
+        <h2>{{ error }}</h2>
+        <p>The share link may be invalid or the owner has disabled sharing.</p>
+        <button pButton label="Go Home" icon="pi pi-home" routerLink="/home"></button>
+    </div>
+
+    <!-- ── Dashboard preview ── -->
+    <div *ngIf="!loading && !error && dashboard" class="shared-page__content">
+
+        <!-- Header -->
+        <div class="shared-page__header">
+            <div class="shared-page__title">
+                <i class="pi pi-th-large"></i>
+                <h1>{{ dashboard.dashboardName }}</h1>
+                <span class="shared-badge"><i class="pi pi-globe"></i> Shared</span>
+            </div>
+            <div class="shared-page__actions">
+                <button pButton pRipple icon="pi pi-plus" label="Add to My Dashboard"
+                    (click)="openAddDialog()"></button>
+                <button pButton pRipple icon="pi pi-home" label="Go Home" class="p-button-text"
+                    routerLink="/home"></button>
+            </div>
+        </div>
+
+        <!-- Widget grid (read-only KTD grid, same layout as home page) -->
+        <div class="grid-container">
+            <div *ngIf="dashboard.widgets.length === 0" class="shared-page__empty">
+                <i class="pi pi-inbox" style="font-size: 2.5rem"></i>
+                <p>This dashboard has no widgets.</p>
+            </div>
+            <ktd-grid *ngIf="dashboard.widgets.length > 0" [cols]="cols" [rowHeight]="rowHeight" [layout]="layout"
+                [compactType]="'vertical'" [gap]="8" (layoutUpdated)="layout = $event">
+                <ktd-grid-item class="grid-item" *ngFor="let item of layout; trackBy: trackById" [id]="item.id"
+                    [draggable]="false" [resizable]="false">
+                    <div class="grid-item-content" [style.background-color]="item.backgroundColor || '#6366f1'"
+                        (click)="navigateToUrl(item.url)">
+                        <app-shortcut [name]="item.name" [url]="item.url" [isEditing]="false"></app-shortcut>
+                    </div>
+                </ktd-grid-item>
+            </ktd-grid>
+        </div>
+
+    </div>
+
+    <!-- ── Add to My Dashboard dialog ── -->
+    <p-dialog header="Add to My Dashboard" [(visible)]="showAddDialog" [modal]="true" [style]="{ width: '400px' }"
+        [draggable]="false" [resizable]="false">
+        <div class="add-dialog-body">
+            <p>Choose a tab name for this dashboard:</p>
+            <input pInputText type="text" [(ngModel)]="tabName" placeholder="e.g. Work Tools" class="w-full"
+                (keyup.enter)="addToMyDashboard()" autofocus />
+        </div>
+        <ng-template pTemplate="footer">
+            <button pButton label="Cancel" icon="pi pi-times" class="p-button-text" (click)="cancelAdd()"></button>
+            <button pButton label="Add" icon="pi pi-plus" [disabled]="!tabName.trim()"
+                (click)="addToMyDashboard()"></button>
+        </ng-template>
+    </p-dialog>
+
+    <!-- ── Success overlay ── -->
+    <p-dialog header="Dashboard Added!" [(visible)]="addSuccess" [modal]="true" [style]="{ width: '360px' }"
+        [closable]="false">
+        <div class="success-body">
+            <i class="pi pi-check-circle"></i>
+            <p>"{{ tabName }}" has been added to your dashboards. Redirecting…</p>
+        </div>
+    </p-dialog>
+
+</div>

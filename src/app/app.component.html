@@ -35,53 +35,33 @@
       <!-- Right Actions -->
       <div class="navbar-actions">
         <!-- Dark Mode Toggle -->
-        <button
-          class="navbar-btn theme-toggle"
-          (click)="toggleDarkMode()"
-          pTooltip="{{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}"
-          tooltipPosition="bottom"
-        >
+        <button class="navbar-btn theme-toggle" (click)="toggleDarkMode()"
+          pTooltip="{{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}" tooltipPosition="bottom">
           <i class="pi" [ngClass]="isDarkMode ? 'pi-sun' : 'pi-moon'"></i>
         </button>
 
+        <!-- Sync Dashboards from Cloud -->
+        <button class="navbar-btn" (click)="onCloudSyncClick()" [disabled]="cloudSyncLoading"
+          pTooltip="Sync dashboards from cloud" tooltipPosition="bottom" [class.backup-loading]="cloudSyncLoading">
+          <i class="pi" [ngClass]="cloudSyncLoading ? 'pi-spin pi-spinner' : 'pi-cloud-download'"></i>
+        </button>
+
         <!-- ── Backup Current Dashboard ── -->
-        <button
-          class="navbar-btn backup-btn"
-          (click)="onBackupClick()"
-          [disabled]="backupLoading"
-          pTooltip="Backup current dashboard to cloud"
-          tooltipPosition="bottom"
-          [class.backup-loading]="backupLoading"
-        >
-          <i
-            class="pi"
-            [ngClass]="backupLoading ? 'pi-spin pi-spinner' : 'pi-cloud-upload'"
-          ></i>
+        <button class="navbar-btn backup-btn" (click)="onBackupClick()" [disabled]="backupLoading"
+          pTooltip="Backup all dashboards to cloud" tooltipPosition="bottom" [class.backup-loading]="backupLoading">
+          <i class="pi" [ngClass]="backupLoading ? 'pi-spin pi-spinner' : 'pi-cloud-upload'"></i>
         </button>
 
         <!-- Notifications -->
-        <button
-          class="navbar-btn"
-          pTooltip="Notifications"
-          tooltipPosition="bottom"
-          (click)="op.toggle($event)"
-        >
-          <i
-            class="pi pi-bell"
-            [ngClass]="{ 'bell-animate': notificationCount > 0 }"
-          ></i>
+        <button class="navbar-btn" pTooltip="Notifications" tooltipPosition="bottom" (click)="op.toggle($event)">
+          <i class="pi pi-bell" [ngClass]="{ 'bell-animate': notificationCount > 0 }"></i>
           <span *ngIf="notificationCount > 0" class="notification-badge">{{
             notificationCount
-          }}</span>
+            }}</span>
         </button>
 
         <!-- Sync / Settings -->
-        <button
-          class="navbar-btn"
-          pTooltip="Settings"
-          tooltipPosition="bottom"
-          (click)="openSyncDashboardDialog()"
-        >
+        <button class="navbar-btn" pTooltip="Settings" tooltipPosition="bottom" (click)="openSyncDashboardDialog()">
           <i class="pi pi-cog"></i>
         </button>
       </div>
@@ -96,60 +76,26 @@
   </p-overlayPanel>
 
   <!-- Sync Dashboard Dialog -->
-  <p-dialog
-    header="Sync Dashboard"
-    [(visible)]="showSyncDialog"
-    [modal]="true"
-    [style]="{ width: '500px' }"
-    [draggable]="false"
-    [resizable]="false"
-  >
-    <app-sync-dashboard
-      *ngIf="showSyncDialog"
-      (syncComplete)="onSyncDialogClose($event)"
-    ></app-sync-dashboard>
+  <p-dialog header="Sync Dashboard" [(visible)]="showSyncDialog" [modal]="true" [style]="{ width: '500px' }"
+    [draggable]="false" [resizable]="false">
+    <app-sync-dashboard *ngIf="showSyncDialog" (syncComplete)="onSyncDialogClose($event)"></app-sync-dashboard>
   </p-dialog>
 
   <!-- ── E-mail Dialog (shown before first cloud backup) ── -->
-  <p-dialog
-    header="Set your account e-mail"
-    [(visible)]="showEmailDialog"
-    [modal]="true"
-    [style]="{ width: '400px' }"
-    [draggable]="false"
-    [resizable]="false"
-  >
+  <p-dialog header="Set your account e-mail" [(visible)]="showEmailDialog" [modal]="true" [style]="{ width: '400px' }"
+    [draggable]="false" [resizable]="false">
     <div class="email-dialog-body">
       <p class="email-dialog-hint">
         Your e-mail is used to associate cloud backups with your account. It is
         stored only in your browser's localStorage.
       </p>
-      <input
-        pInputText
-        type="email"
-        [(ngModel)]="emailInput"
-        placeholder="you@example.com"
-        class="w-full"
-        (keyup.enter)="onEmailSave()"
-        autofocus
-      />
+      <input pInputText type="email" [(ngModel)]="emailInput" placeholder="you@example.com" class="w-full"
+        (keyup.enter)="onEmailSave()" autofocus />
     </div>
     <ng-template pTemplate="footer">
-      <button
-        pButton
-        label="Cancel"
-        icon="pi pi-times"
-        class="p-button-text"
-        (click)="onEmailCancel()"
-      ></button>
-      <button
-        pButton
-        label="Save & Backup"
-        icon="pi pi-cloud-upload"
-        class="p-button-primary"
-        [disabled]="!emailInput.includes('@')"
-        (click)="onEmailSave()"
-      ></button>
+      <button pButton label="Cancel" icon="pi pi-times" class="p-button-text" (click)="onEmailCancel()"></button>
+      <button pButton label="Save & Backup" icon="pi pi-cloud-upload" class="p-button-primary"
+        [disabled]="!emailInput.includes('@')" (click)="onEmailSave()"></button>
     </ng-template>
   </p-dialog>
 

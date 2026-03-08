@@ -1,0 +1,170 @@
+.shared-page {
+  min-height: 100vh;
+  padding: 2rem;
+  background: var(--surface-ground);
+  color: var(--text-color);
+}
+
+// ── Centered states (loading / error) ────────────────────────────────────────
+.shared-page__center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 1rem;
+  text-align: center;
+
+  p {
+    margin: 0;
+    color: var(--text-color-secondary);
+  }
+}
+
+.shared-page__error {
+  i {
+    color: var(--red-400);
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+}
+
+// ── Content layout ────────────────────────────────────────────────────────────
+.shared-page__content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.shared-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.shared-page__title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  i {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+  }
+}
+
+.shared-page__actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+// ── KTD Grid (mirrors dashboard.component.scss) ───────────────────────────────
+.grid-container {
+  height: calc(100vh - 220px);
+  border-radius: var(--radius-lg);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.25rem;
+}
+
+.grid-item {
+  display: flex !important;
+  border-radius: var(--radius-md) !important;
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.2s ease;
+  overflow: hidden;
+
+  &:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+  }
+}
+
+.grid-item-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+}
+
+.shared-page__empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text-color-secondary);
+  padding: 3rem 0;
+}
+
+// ── Shared badge ──────────────────────────────────────────────────────────────
+.shared-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--blue-100);
+  color: var(--blue-700);
+  border-radius: 99px;
+  padding: 0.2rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  :host-context([data-theme='dark']) & {
+    background: var(--blue-900);
+    color: var(--blue-200);
+  }
+}
+
+// ── Add dialog ────────────────────────────────────────────────────────────────
+.add-dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+
+  p {
+    margin: 0;
+    color: var(--text-color-secondary);
+  }
+
+  .w-full {
+    width: 100%;
+  }
+}
+
+// ── Success overlay ───────────────────────────────────────────────────────────
+.success-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 0;
+  text-align: center;
+
+  i {
+    font-size: 3rem;
+    color: var(--green-500);
+  }
+
+  p {
+    margin: 0;
+  }
+}

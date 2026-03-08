@@ -10,6 +10,50 @@
     color var(--transition-normal);
 }
 
+// ── Tab header custom content ─────────────────────────────────────────────────
+.tab-icon {
+  margin-right: 0.4rem;
+  font-size: 0.85rem;
+}
+
+.tab-label {
+  flex: 1;
+}
+
+.tab-close-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-left: 0.5rem;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+
+  i {
+    font-size: 0.65rem;
+    line-height: 1;
+  }
+
+  &:hover {
+    background: var(--red-100, #fee2e2);
+    color: var(--red-500, #ef4444);
+  }
+
+  :host-context([data-theme='dark']) &:hover {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+  }
+}
+
 :host ::ng-deep {
   .modern-tabs {
     // Nav container — PrimeNG 17+ keeps .p-tabview-nav-container but also adds .p-tabs-nav-container

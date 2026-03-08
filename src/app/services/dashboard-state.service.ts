@@ -158,8 +158,16 @@ export class DashboardStateService {
         .subscribe({
           next: (res) => {
             if (res.success && res.data) {
-              // Prepend so the newest backup appears first in the list
-              this._dashboards.next([res.data, ...this._dashboards.value]);
+              // If the backend upserted an existing doc, replace it in the
+              // local list; otherwise prepend as a new entry.
+              const exists = this._dashboards.value.some(
+                (d) => d._id === res.data!._id,
+              );
+              if (exists) {
+                this._replaceInList(res.data);
+              } else {
+                this._dashboards.next([res.data, ...this._dashboards.value]);
+              }
               this._toast(
                 'success',
                 'Backup saved',

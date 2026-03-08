@@ -7,6 +7,8 @@ import {
   AfterViewInit,
   HostListener,
   Input,
+  Output,
+  EventEmitter,
 } from '@angular/core';
 import {
   KtdGridComponent,
@@ -28,10 +30,19 @@ import type { DashboardDocument } from '../../libs/dashboard-api';
 })
 export class DashboardComponent implements OnInit, OnChanges {
   @Input() dashboardName: string;
+  /** Emitted whenever editMode toggles — HomeComponent uses this to show/hide
+   *  the × close button on the tab header. */
+  @Output() editModeChange = new EventEmitter<boolean>();
+
+  private _editMode = false;
+  get editMode(): boolean { return this._editMode; }
+  set editMode(value: boolean) {
+    this._editMode = value;
+    this.editModeChange.emit(value);
+  }
+
   cols = 25;
   rowHeight = 75;
-  editMode = false;
-
   layout: any = [];
 
   innerWidth: any;

@@ -1,6 +1,9 @@
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { forkJoin } from 'rxjs';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { DashboardStateService } from './services/dashboard-state.service';
 import { DashboardDataService } from './services/dashboard-data.service';
+import { DashboardService } from '../libs/dashboard-api';
 
 @Component({
   standalone: false,
@@ -23,6 +26,10 @@ export class AppComponent implements OnInit {
   emailInput = '';
   /** True while a backup HTTP call is in-flight. */
   backupLoading = false;
+  /** True while a cloud-sync HTTP call is in-flight. */
+  cloudSyncLoading = false;
+  /** Tracks which action to run after the e-mail dialog is dismissed. */
+  private pendingAction: 'backup' | 'sync' = 'backup';
   /** Controls the share-link dialog. */
   showShareDialog = false;
   /** URL produced by the latest shareDashboard() call. */
@@ -32,6 +39,9 @@ export class AppComponent implements OnInit {
     private cd: ChangeDetectorRef,
     public dashboardState: DashboardStateService,
     private dashboardData: DashboardDataService,
+    private confirmationService: ConfirmationService,
+    private messageService: MessageService,
+    private api: DashboardService,
   ) {}
 
   ngOnInit(): void {
@@ -91,10 +101,36 @@ export class AppComponent implements OnInit {
    */
   onBackupClick(): void {
     if (!this.dashboardState.userEmail) {
+      this.pendingAction = 'backup';
       this.showEmailDialog = true;
       return;
     }
     this._executeBackup();
+  }
+
+  /** Entry-point for the Sync Dashboards button in the navbar. */
+  onCloudSyncClick(): void {
+    if (!this.dashboardState.userEmail) {
+      this.pendingAction = 'sync';
+      this.showEmailDialog = true;
+      return;
+    }
+    this._confirmAndSync();
+  }
+
+  /** Shows the PrimeNG confirmation dialog before executing the cloud sync. */
+  private _confirmAndSync(): void {
+    this.confirmationService.confirm({
+      header: 'Sync Dashboards from Cloud',
+      message:
+        'This will fetch all your cloud dashboards and add or update them locally. Existing dashboards with the same name will be overwritten. Continue?',
+      icon: 'pi pi-cloud-download',
+      acceptLabel: 'Sync',
+      rejectLabel: 'Cancel',
+      acceptButtonStyleClass: 'p-button-primary',
+      rejectButtonStyleClass: 'p-button-text',
+      accept: () => this._executeCloudSync(),
+    });
   }
 
   /** Invoked when the user submits the e-mail dialog. */
@@ -103,7 +139,11 @@ export class AppComponent implements OnInit {
     if (!email || !email.includes('@')) return;
     this.dashboardState.setUserEmail(email);
     this.showEmailDialog = false;
-    this._executeBackup();
+    if (this.pendingAction === 'sync') {
+      this._confirmAndSync();
+    } else {
+      this._executeBackup();
+    }
   }
 
   /** Cancels the e-mail dialog without doing anything. */
@@ -118,12 +158,75 @@ export class AppComponent implements OnInit {
 
   // ── Private helpers ────────────────────────────────────────────────────────
 
+  /** Fetches all cloud dashboards and merges them into local storage. */
+  private _executeCloudSync(): void {
+    const email = this.dashboardState.userEmail;
+    if (!email) return;
+
+    this.cloudSyncLoading = true;
+    this.api.getUserDashboards(email).subscribe({
+      next: (res) => {
+        const remoteDashboards = res.data ?? [];
+        if (remoteDashboards.length === 0) {
+          this.messageService.add({ severity: 'info', summary: 'No dashboards', detail: 'No cloud dashboards found for your account.' });
+          this.cloudSyncLoading = false;
+          return;
+        }
+
+        const currentTabs = [...this.dashboardData.dashboardName.value];
+
+        remoteDashboards.forEach((doc) => {
+          // Add tab if not already present
+          if (!currentTabs.includes(doc.dashboardName)) {
+            currentTabs.push(doc.dashboardName);
+          }
+          // Restore widget layout, ensuring backgroundColor has the '#' prefix
+          const widgets = doc.widgets.map((w) => ({
+            ...w,
+            backgroundColor: w.backgroundColor
+              ? w.backgroundColor.startsWith('#')
+                ? w.backgroundColor
+                : '#' + w.backgroundColor
+              : '',
+          }));
+          localStorage.setItem(
+            doc.dashboardName + 'DashBoardGridLayout',
+            JSON.stringify(widgets),
+          );
+        });
+
+        // Persist updated tab list
+        localStorage.setItem('DashBoardNameArray', JSON.stringify(currentTabs));
+        this.dashboardData.dashboardName.next(currentTabs);
+
+        this.cloudSyncLoading = false;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sync complete',
+          detail: `${remoteDashboards.length} dashboard(s) synchronised from the cloud.`,
+        });
+      },
+      error: (err: Error) => {
+        this.cloudSyncLoading = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Sync failed',
+          detail: err?.message ?? 'Could not fetch dashboards from the cloud.',
+        });
+      },
+    });
+  }
+
   private _executeBackup(): void {
-    const activeTab = this.dashboardData.activeDashboardName.value;
-    const widgets = this.dashboardData.getWidgetsForDashboard(activeTab);
+    const allTabs = this.dashboardData.dashboardName.value;
 
     this.backupLoading = true;
-    this.dashboardState.backupDashboard(activeTab, widgets).subscribe({
+    const backupObs = allTabs.map((tab) => {
+      const widgets = this.dashboardData.getWidgetsForDashboard(tab);
+      return this.dashboardState.backupDashboard(tab, widgets);
+    });
+
+    forkJoin(backupObs).subscribe({
       next: () => {
         this.backupLoading = false;
       },

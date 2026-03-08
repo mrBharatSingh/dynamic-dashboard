@@ -1,18 +1,16 @@
 <div class="home-container">
-  <p-tabView
-    [(activeIndex)]="selectedTabIndex"
-    (activeIndexChange)="onTabChange($event)"
-    styleClass="modern-tabs"
-  >
-    <p-tabPanel
-      *ngFor="let board of boardlist; let i = index"
-      [header]="board"
-      [leftIcon]="'pi pi-th-large'"
-    >
-      <app-dashboard
-        *ngIf="i == selectedTabIndex"
-        [dashboardName]="board"
-      ></app-dashboard>
+  <p-tabView [(activeIndex)]="selectedTabIndex" (activeIndexChange)="onTabChange($event)" styleClass="modern-tabs">
+    <p-tabPanel *ngFor="let board of boardlist; let i = index">
+      <ng-template pTemplate="header">
+        <i class="pi pi-th-large tab-icon"></i>
+        <span class="tab-label">{{ board }}</span>
+        <button *ngIf="editingTabs.has(board)" class="tab-close-btn" pTooltip="Delete dashboard" tooltipPosition="top"
+          (click)="$event.stopPropagation(); onDeleteDashboard(board, i)">
+          <i class="pi pi-times"></i>
+        </button>
+      </ng-template>
+      <app-dashboard *ngIf="i == selectedTabIndex" [dashboardName]="board"
+        (editModeChange)="onEditModeChange(board, $event)"></app-dashboard>
     </p-tabPanel>
     <p-tabPanel header="Links" leftIcon="pi pi-link">
       <app-links></app-links>

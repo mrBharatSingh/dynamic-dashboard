@@ -19,6 +19,7 @@ import { AddNewShortcutComponent } from './add-new-shortcut/add-new-shortcut.com
 import { NotificationsComponent } from './notifications/notifications.component';
 import { AddNewDashboardTabComponent } from './add-new-dashboard-tab/add-new-dashboard-tab.component';
 import { SyncDashboardComponent } from './sync-dashboard/sync-dashboard.component';
+import { SharedDashboardComponent } from './shared-dashboard/shared-dashboard.component';
 
 // PrimeNG Modules
 import { ToolbarModule } from 'primeng/toolbar';
@@ -63,6 +64,7 @@ import { environment } from 'src/environments/environment';
     NotificationsComponent,
     AddNewDashboardTabComponent,
     SyncDashboardComponent,
+    SharedDashboardComponent,
   ],
   imports: [
     BrowserModule,

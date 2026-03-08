@@ -1,99 +1,36 @@
 <!-- Dashboard Toolbar -->
 <div class="dashboard-toolbar">
   <div class="toolbar-actions">
-    <button
-      *ngIf="editMode"
-      pButton
-      pRipple
-      type="button"
-      icon="pi pi-plus-circle"
-      label="New Dashboard"
-      class="p-button-outlined p-button-sm"
-      pTooltip="Add a new Dashboard"
-      (click)="addNewDashboardTab()"
-    ></button>
-    <button
-      *ngIf="editMode"
-      pButton
-      pRipple
-      type="button"
-      icon="pi pi-plus"
-      label="Add Shortcut"
-      class="p-button-outlined p-button-sm"
-      pTooltip="Add a new Shortcut"
-      (click)="addGridTile()"
-    ></button>
-    <button
-      *ngIf="!editMode"
-      pButton
-      pRipple
-      type="button"
-      icon="pi pi-pencil"
-      label="Edit"
-      class="p-button-text p-button-sm"
-      pTooltip="Edit Dashboard"
-      (click)="editMode = true"
-    ></button>
-    <button
-      *ngIf="editMode"
-      pButton
-      pRipple
-      type="button"
-      icon="pi pi-save"
-      label="Save"
-      class="p-button-success p-button-sm"
-      pTooltip="Save Dashboard"
-      (click)="saveGridTile()"
-    ></button>
+    <button *ngIf="editMode" pButton pRipple type="button" icon="pi pi-plus-circle" label="New Dashboard"
+      class="p-button-outlined p-button-sm" pTooltip="Add a new Dashboard" (click)="addNewDashboardTab()"></button>
+    <button *ngIf="editMode" pButton pRipple type="button" icon="pi pi-plus" label="Add Shortcut"
+      class="p-button-outlined p-button-sm" pTooltip="Add a new Shortcut" (click)="addGridTile()"></button>
+    <button *ngIf="!editMode" pButton pRipple type="button" icon="pi pi-pencil" label="Edit"
+      class="p-button-text p-button-sm" pTooltip="Edit Dashboard" (click)="editMode = true"></button>
+    <button *ngIf="editMode" pButton pRipple type="button" icon="pi pi-save" label="Save"
+      class="p-button-success p-button-sm" pTooltip="Save Dashboard" (click)="saveGridTile()"></button>
 
     <!-- ── Cloud actions (view mode only) ──────────────────────── -->
     <ng-container *ngIf="!editMode && cloudDoc">
       <!-- Push local → cloud -->
-      <button
-        pButton
-        pRipple
-        type="button"
-        [icon]="cloudSaving ? 'pi pi-spin pi-spinner' : 'pi pi-cloud-upload'"
-        label="Update Cloud"
-        class="p-button-outlined p-button-sm"
-        pTooltip="Overwrite cloud backup with current layout"
-        [disabled]="cloudSaving"
-        (click)="updateCloudDashboard()"
-      ></button>
+      <button pButton pRipple type="button" [icon]="cloudSaving ? 'pi pi-spin pi-spinner' : 'pi pi-cloud-upload'"
+        label="Update Cloud" class="p-button-outlined p-button-sm" pTooltip="Overwrite cloud backup with current layout"
+        [disabled]="cloudSaving" (click)="updateCloudDashboard()"></button>
 
       <!-- Share -->
-      <button
-        pButton
-        pRipple
-        type="button"
-        [icon]="cloudSharing ? 'pi pi-spin pi-spinner' : 'pi pi-share-alt'"
-        label="Share"
-        class="p-button-outlined p-button-sm"
-        pTooltip="Share dashboard & copy link"
-        [disabled]="cloudSharing"
-        (click)="shareCloudDashboard()"
-      ></button>
+      <button pButton pRipple type="button" [icon]="cloudSharing ? 'pi pi-spin pi-spinner' : 'pi pi-share-alt'"
+        label="Share" class="p-button-outlined p-button-sm" pTooltip="Share dashboard & copy link"
+        [disabled]="cloudSharing" (click)="shareCloudDashboard()"></button>
 
       <!-- Delete cloud backup -->
-      <button
-        pButton
-        pRipple
-        type="button"
-        [icon]="cloudDeleting ? 'pi pi-spin pi-spinner' : 'pi pi-trash'"
-        label="Delete Backup"
-        class="p-button-text p-button-sm p-button-danger"
-        pTooltip="Delete this dashboard from the cloud"
-        [disabled]="cloudDeleting"
-        (click)="deleteCloudDashboard()"
-      ></button>
+      <button pButton pRipple type="button" [icon]="cloudDeleting ? 'pi pi-spin pi-spinner' : 'pi pi-trash'"
+        label="Delete Backup" class="p-button-text p-button-sm p-button-danger"
+        pTooltip="Delete this dashboard from the cloud" [disabled]="cloudDeleting"
+        (click)="deleteCloudDashboard()"></button>
     </ng-container>
 
     <!-- Shared badge -->
-    <span
-      *ngIf="!editMode && cloudDoc?.isShared"
-      class="shared-badge"
-      pTooltip="This dashboard is publicly shared"
-    >
+    <span *ngIf="!editMode && cloudDoc?.isShared" class="shared-badge" pTooltip="This dashboard is publicly shared">
       <i class="pi pi-globe"></i> Shared
     </span>
   </div>
@@ -101,68 +38,27 @@
 
 <!-- Grid Container -->
 <div class="grid-container">
-  <ktd-grid
-    [cols]="cols"
-    #KtdGridComponent
-    [rowHeight]="rowHeight"
-    [layout]="layout"
-    (layoutUpdated)="onLayoutUpdated($event)"
-    [compactType]="'vertical'"
-    [gap]="8"
-  >
-    <ktd-grid-item
-      class="grid-item"
-      *ngFor="let item of layout; trackBy: trackById"
-      [id]="item.id"
-      [style.border]="editMode ? '2px dashed var(--text-muted)' : 'none'"
-      [draggable]="editMode"
-      [resizable]="editMode"
-    >
+  <ktd-grid [cols]="cols" #KtdGridComponent [rowHeight]="rowHeight" [layout]="layout"
+    (layoutUpdated)="onLayoutUpdated($event)" [compactType]="'vertical'" [gap]="8">
+    <ktd-grid-item class="grid-item" *ngFor="let item of layout; trackBy: trackById" [id]="item.id"
+      [style.border]="editMode ? '2px dashed var(--text-muted)' : 'none'" [draggable]="editMode" [resizable]="editMode">
       <!-- Edit controls -->
       <div class="grid-item-controls" *ngIf="editMode">
-        <button
-          pButton
-          pRipple
-          type="button"
-          icon="pi pi-pencil"
-          class="p-button-rounded p-button-text p-button-sm control-btn"
-          (click)="opneEdigDialog(item)"
-        ></button>
-        <button
-          pButton
-          pRipple
-          type="button"
-          icon="pi pi-times"
+        <button pButton pRipple type="button" icon="pi pi-pencil"
+          class="p-button-rounded p-button-text p-button-sm control-btn" (click)="opneEdigDialog(item)"></button>
+        <button pButton pRipple type="button" icon="pi pi-times"
           class="p-button-rounded p-button-text p-button-danger p-button-sm control-btn"
-          (click)="removeItem(item.id)"
-        ></button>
+          (click)="removeItem(item.id)"></button>
       </div>
 
       <!-- Shortcut content (view mode - clickable) -->
-      <div
-        class="grid-item-content"
-        *ngIf="!editMode"
-        [style.background-color]="item.backgroundColor || '#6366f1'"
-        (pointerdown)="$event.stopPropagation()"
-        (click)="navigateToUrl(item.url)"
-      >
-        <app-shortcut
-          [name]="item.name"
-          [url]="item.url"
-          [isEditing]="false"
-        ></app-shortcut>
+      <div class="grid-item-content" *ngIf="!editMode" [style.background-color]="item.backgroundColor || '#6366f1'"
+        (pointerdown)="$event.stopPropagation()" (click)="navigateToUrl(item.url)">
+        <app-shortcut [name]="item.name" [url]="item.url" [isEditing]="false"></app-shortcut>
       </div>
       <!-- Shortcut content (edit mode - draggable) -->
-      <div
-        class="grid-item-content"
-        *ngIf="editMode"
-        [style.background-color]="item.backgroundColor || '#6366f1'"
-      >
-        <app-shortcut
-          [name]="item.name"
-          [url]="item.url"
-          [isEditing]="true"
-        ></app-shortcut>
+      <div class="grid-item-content" *ngIf="editMode" [style.background-color]="item.backgroundColor || '#6366f1'">
+        <app-shortcut [name]="item.name" [url]="item.url" [isEditing]="true"></app-shortcut>
       </div>
 
       <ng-template ktdGridItemPlaceholder>
@@ -173,34 +69,15 @@
 </div>
 
 <!-- Add Shortcut Dialog -->
-<p-dialog
-  header="Add New Shortcut"
-  [(visible)]="showAddShortcutDialog"
-  [modal]="true"
-  [style]="{ width: '550px' }"
-  [draggable]="false"
-  [resizable]="false"
->
-  <app-add-new-shortcut
-    *ngIf="showAddShortcutDialog"
-    [data]="dialogData"
-    (submitted)="onShortcutDialogClose($event)"
-    (cancelled)="showAddShortcutDialog = false"
-  ></app-add-new-shortcut>
+<p-dialog header="Add New Shortcut" [(visible)]="showAddShortcutDialog" [modal]="true" [style]="{ width: '550px' }"
+  [draggable]="false" [resizable]="false">
+  <app-add-new-shortcut *ngIf="showAddShortcutDialog" [data]="dialogData" (submitted)="onShortcutDialogClose($event)"
+    (cancelled)="showAddShortcutDialog = false"></app-add-new-shortcut>
 </p-dialog>
 
 <!-- Add Dashboard Tab Dialog -->
-<p-dialog
-  header="Add New Dashboard"
-  [(visible)]="showAddDashboardDialog"
-  [modal]="true"
-  [style]="{ width: '450px' }"
-  [draggable]="false"
-  [resizable]="false"
->
-  <app-add-new-dashboard-tab
-    *ngIf="showAddDashboardDialog"
-    (submitted)="showAddDashboardDialog = false"
-    (cancelled)="showAddDashboardDialog = false"
-  ></app-add-new-dashboard-tab>
+<p-dialog header="Add New Dashboard" [(visible)]="showAddDashboardDialog" [modal]="true" [style]="{ width: '450px' }"
+  [draggable]="false" [resizable]="false">
+  <app-add-new-dashboard-tab *ngIf="showAddDashboardDialog" (submitted)="showAddDashboardDialog = false"
+    (cancelled)="showAddDashboardDialog = false"></app-add-new-dashboard-tab>
 </p-dialog>
